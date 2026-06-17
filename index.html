@@ -1,0 +1,2654 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Πληροφορική Γ' Λυκείου — Γκόλφος Βασίλειος</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ─── Design tokens ─────────────────────────────────────── */
+  :root {
+    --bg:        #f8f9fa;
+    --surface:   #ffffff;
+    --sidebar-bg:#1a1d23;
+    --sidebar-w: 280px;
+    --accent:    #2563eb;
+    --accent-lt: #dbeafe;
+    --accent-mid:#93c5fd;
+    --text:      #1e293b;
+    --text-2:    #475569;
+    --text-3:    #94a3b8;
+    --border:    #e2e8f0;
+    --code-bg:   #0f172a;
+    --code-text: #e2e8f0;
+    --def-border:#2563eb;
+    --def-bg:    #eff6ff;
+    --note-border:#f59e0b;
+    --note-bg:   #fffbeb;
+    --warn-border:#ef4444;
+    --warn-bg:   #fef2f2;
+    --green:     #16a34a;
+    --green-bg:  #f0fdf4;
+    --radius:    10px;
+    --shadow:    0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.04);
+    --font:      'Inter', system-ui, sans-serif;
+    --mono:      'JetBrains Mono', 'Courier New', monospace;
+    --topbar-h:  56px;
+  }
+
+  /* ─── Reset & base ────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font);
+    font-size: 16px;
+    line-height: 1.75;
+    color: var(--text);
+    background: var(--bg);
+    overflow-x: hidden;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ─── Top bar (mobile) ────────────────────────────────────── */
+  .topbar {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--topbar-h);
+    background: var(--sidebar-bg);
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: 200;
+    gap: 12px;
+  }
+  .topbar-title {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+  .menu-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: background .15s;
+    flex-shrink: 0;
+  }
+  .menu-btn:hover { background: rgba(255,255,255,.1); }
+  .menu-btn svg { width: 22px; height: 22px; }
+
+  /* ─── Layout ──────────────────────────────────────────────── */
+  .layout {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ─── Sidebar ─────────────────────────────────────────────── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--sidebar-bg);
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    transition: transform .28s cubic-bezier(.4,0,.2,1);
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 4px; }
+
+  .sidebar-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    flex-shrink: 0;
+  }
+  .sidebar-book-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
+    letter-spacing: -.01em;
+  }
+  .sidebar-author {
+    font-size: 12px;
+    color: rgba(255,255,255,.45);
+    margin-top: 4px;
+  }
+
+  /* Search */
+  .search-wrap {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    flex-shrink: 0;
+  }
+  .search-box {
+    position: relative;
+  }
+  .search-box svg {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 15px;
+    height: 15px;
+    color: rgba(255,255,255,.35);
+    pointer-events: none;
+  }
+  #searchInput {
+    width: 100%;
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 8px;
+    padding: 8px 10px 8px 32px;
+    font-size: 13px;
+    font-family: var(--font);
+    color: #fff;
+    outline: none;
+    transition: border-color .2s, background .2s;
+  }
+  #searchInput::placeholder { color: rgba(255,255,255,.3); }
+  #searchInput:focus {
+    border-color: var(--accent-mid);
+    background: rgba(255,255,255,.1);
+  }
+  #searchResults {
+    display: none;
+    position: absolute;
+    left: 16px; right: 16px;
+    top: calc(12px + 38px + 4px);
+    background: #23273a;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 8px;
+    z-index: 300;
+    max-height: 320px;
+    overflow-y: auto;
+    box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  }
+  .search-result-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    transition: background .12s;
+  }
+  .search-result-item:last-child { border-bottom: none; }
+  .search-result-item:hover { background: rgba(37,99,235,.3); }
+  .search-result-chapter {
+    font-size: 10px;
+    color: var(--accent-mid);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .search-result-title {
+    font-size: 13px;
+    color: #e2e8f0;
+    font-weight: 500;
+  }
+  .search-result-excerpt {
+    font-size: 11px;
+    color: rgba(255,255,255,.4);
+    margin-top: 2px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .search-no-results {
+    padding: 16px;
+    color: rgba(255,255,255,.4);
+    font-size: 13px;
+    text-align: center;
+  }
+
+  /* Nav */
+  .nav { flex: 1; padding: 8px 0 24px; }
+  .nav-chapter {
+    padding: 0;
+    margin-bottom: 2px;
+  }
+  .nav-chapter-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    color: rgba(255,255,255,.65);
+    font-size: 12.5px;
+    font-family: var(--font);
+    font-weight: 500;
+    text-align: left;
+    transition: background .15s, color .15s;
+    border-radius: 0;
+  }
+  .nav-chapter-btn:hover {
+    background: rgba(255,255,255,.06);
+    color: #fff;
+  }
+  .nav-chapter-btn.active {
+    color: #fff;
+    background: rgba(37,99,235,.25);
+  }
+  .nav-chapter-num {
+    font-size: 10px;
+    font-weight: 700;
+    background: rgba(255,255,255,.12);
+    color: rgba(255,255,255,.6);
+    border-radius: 4px;
+    padding: 2px 6px;
+    flex-shrink: 0;
+    letter-spacing: .04em;
+  }
+  .nav-chapter-btn.active .nav-chapter-num {
+    background: var(--accent);
+    color: #fff;
+  }
+  .nav-chapter-arrow {
+    margin-left: auto;
+    width: 14px;
+    height: 14px;
+    color: rgba(255,255,255,.3);
+    transition: transform .2s;
+    flex-shrink: 0;
+  }
+  .nav-chapter-btn.open .nav-chapter-arrow { transform: rotate(90deg); }
+
+  .nav-sections {
+    display: none;
+    padding: 0 0 4px 0;
+  }
+  .nav-sections.open { display: block; }
+  .nav-section-link {
+    display: block;
+    padding: 6px 16px 6px 36px;
+    font-size: 12px;
+    color: rgba(255,255,255,.45);
+    transition: color .15s, background .15s;
+    border-left: 2px solid transparent;
+    margin-left: 14px;
+  }
+  .nav-section-link:hover {
+    color: rgba(255,255,255,.8);
+    text-decoration: none;
+    background: rgba(255,255,255,.04);
+  }
+  .nav-section-link.active-section {
+    color: var(--accent-mid);
+    border-left-color: var(--accent);
+    background: rgba(37,99,235,.1);
+  }
+
+  /* Sidebar overlay (mobile) */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    z-index: 99;
+    backdrop-filter: blur(2px);
+  }
+  .overlay.visible { display: block; }
+
+  /* ─── Main content ────────────────────────────────────────── */
+  .main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    min-width: 0;
+  }
+  .content-area {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 56px 48px 120px;
+  }
+
+  /* ─── Chapter page ────────────────────────────────────────── */
+  .chapter-page { display: none; }
+  .chapter-page.active { display: block; }
+
+  /* Chapter hero */
+  .chapter-hero {
+    padding: 40px 0 36px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .chapter-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .chapter-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+    letter-spacing: -.02em;
+    margin-bottom: 14px;
+  }
+  .chapter-desc {
+    font-size: 16px;
+    color: var(--text-2);
+    max-width: 600px;
+    line-height: 1.65;
+  }
+  .chapter-meta {
+    display: flex;
+    gap: 16px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .chapter-tag {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: var(--accent-lt);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* Section headings */
+  .section-heading {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 40px 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+    letter-spacing: -.01em;
+    scroll-margin-top: 24px;
+  }
+  .sub-heading {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 28px 0 10px;
+    scroll-margin-top: 24px;
+  }
+  .sub-sub-heading {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-2);
+    margin: 20px 0 8px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+
+  /* Prose */
+  p { margin-bottom: 14px; color: var(--text-2); font-size: 15.5px; }
+  ul, ol { margin: 8px 0 14px 20px; color: var(--text-2); font-size: 15.5px; }
+  li { margin-bottom: 5px; }
+
+  /* Callout boxes */
+  .def-box {
+    border-left: 4px solid var(--def-border);
+    background: var(--def-bg);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 14px 18px;
+    margin: 18px 0;
+  }
+  .def-box .def-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .def-box p { margin: 0; color: var(--text); font-weight: 500; }
+
+  .note-box {
+    border-left: 4px solid var(--note-border);
+    background: var(--note-bg);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 14px 18px;
+    margin: 18px 0;
+  }
+  .note-box .note-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #b45309;
+    margin-bottom: 6px;
+  }
+  .note-box p { margin: 0; color: #92400e; font-size: 14.5px; }
+
+  .warn-box {
+    border-left: 4px solid var(--warn-border);
+    background: var(--warn-bg);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 14px 18px;
+    margin: 18px 0;
+  }
+  .warn-box .warn-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #dc2626;
+    margin-bottom: 6px;
+  }
+  .warn-box p { margin: 0; color: #991b1b; font-size: 14.5px; }
+
+  .example-box {
+    border-left: 4px solid var(--green);
+    background: var(--green-bg);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 14px 18px;
+    margin: 18px 0;
+  }
+  .example-box .example-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--green);
+    margin-bottom: 6px;
+  }
+  .example-box p { margin: 0; color: #14532d; font-size: 14.5px; }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin: 18px 0;
+    overflow-x: auto;
+    position: relative;
+  }
+  .code-block pre {
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--code-text);
+    white-space: pre;
+  }
+  .code-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: #64748b;
+    margin-bottom: 10px;
+  }
+  /* Syntax highlight helpers */
+  .kw { color: #7dd3fc; font-weight: 600; } /* keywords */
+  .str { color: #86efac; } /* strings */
+  .cmt { color: #475569; font-style: italic; } /* comments */
+  .num { color: #fca5a5; } /* numbers */
+  .fn { color: #c4b5fd; } /* functions */
+
+  /* Tables */
+  .tbl-wrap { overflow-x: auto; margin: 18px 0; border-radius: var(--radius); border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  th {
+    background: #f1f5f9;
+    padding: 10px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--text-2);
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #f8fafc; }
+  td:first-child { font-weight: 600; font-family: var(--mono); font-size: 13.5px; color: var(--accent); }
+
+  /* Exercise cards */
+  .exercise-section {
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+  .exercise-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text-3);
+    margin-bottom: 16px;
+  }
+  .exercise-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .exercise-card:hover {
+    border-color: var(--accent-mid);
+    box-shadow: 0 2px 8px rgba(37,99,235,.1);
+  }
+  .exercise-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--accent-lt);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+  }
+  .exercise-text { font-size: 14.5px; color: var(--text); line-height: 1.6; }
+
+  /* Solution toggle */
+  .solution-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 12.5px;
+    font-family: var(--font);
+    color: var(--text-2);
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all .15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .solution-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-lt); }
+  .solution-content {
+    display: none;
+    margin-top: 12px;
+    padding: 14px 16px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 14px;
+    color: var(--text);
+  }
+  .solution-content.visible { display: block; }
+
+  /* Progress bar */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: var(--accent);
+    z-index: 1000;
+    transition: width .1s linear;
+  }
+
+  /* Chapter nav footer */
+  .chapter-nav-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13.5px;
+    font-weight: 500;
+    transition: all .15s;
+    text-decoration: none;
+    flex: 1;
+    min-width: 120px;
+  }
+  .nav-btn:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-lt);
+    text-decoration: none;
+    color: var(--accent);
+  }
+  .nav-btn.prev { justify-content: flex-start; }
+  .nav-btn.next { justify-content: flex-end; text-align: right; margin-left: auto; }
+  .nav-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .nav-btn-label { font-size: 11px; color: var(--text-3); margin-bottom: 2px; }
+  .nav-btn-title { font-weight: 600; }
+
+  /* Inline code */
+  code {
+    font-family: var(--mono);
+    font-size: .875em;
+    background: #f1f5f9;
+    padding: 2px 5px;
+    border-radius: 4px;
+    color: #0f172a;
+  }
+
+  /* ─── Home page ───────────────────────────────────────────── */
+  .home-hero {
+    padding: 60px 0 48px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .home-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent-lt);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .home-title {
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: -.025em;
+    color: var(--text);
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .home-title span { color: var(--accent); }
+  .home-subtitle {
+    font-size: 17px;
+    color: var(--text-2);
+    max-width: 520px;
+    line-height: 1.65;
+    margin-bottom: 28px;
+  }
+  .home-stats {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .home-stat { }
+  .home-stat-num { font-size: 24px; font-weight: 800; color: var(--text); }
+  .home-stat-label { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+  .chapters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .chapter-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 22px 18px;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: transform .15s, border-color .15s, box-shadow .15s;
+    display: block;
+  }
+  .chapter-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-mid);
+    box-shadow: 0 4px 20px rgba(37,99,235,.12);
+    text-decoration: none;
+  }
+  .chapter-card-num {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .chapter-card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .chapter-card-desc {
+    font-size: 13.5px;
+    color: var(--text-2);
+    line-height: 1.55;
+    margin-bottom: 14px;
+  }
+  .chapter-card-topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .topic-tag {
+    font-size: 11px;
+    padding: 3px 8px;
+    background: #f1f5f9;
+    color: var(--text-2);
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .home-info-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+  }
+  .home-info-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .home-info-title svg { width: 18px; height: 18px; color: var(--accent); }
+
+  /* ─── Responsive ──────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .topbar { display: flex; }
+    .sidebar {
+      transform: translateX(-100%);
+      top: 0;
+    }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-left: 0; padding-top: var(--topbar-h); }
+    .content-area { padding: 32px 20px 80px; }
+    .chapter-title { font-size: 24px; }
+    .home-title { font-size: 26px; }
+    .home-hero { padding: 32px 0 28px; }
+    .chapters-grid { grid-template-columns: 1fr; }
+    .chapter-nav-footer { flex-direction: column; }
+    .nav-btn.next { margin-left: 0; }
+    #searchResults { left: 0; right: 0; top: calc(12px + 38px + 4px); }
+  }
+  @media (max-width: 480px) {
+    .content-area { padding: 24px 16px 64px; }
+    .section-heading { font-size: 17px; }
+  }
+  
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- Top bar (mobile) -->
+<div class="topbar">
+  <button class="menu-btn" onclick="toggleSidebar()" aria-label="Μενού">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+    </svg>
+  </button>
+  <span class="topbar-title" id="topbarTitle">Πληροφορική Γ' Λυκείου</span>
+</div>
+
+<div class="layout">
+
+  <!-- ─── Sidebar ─────────────────────────────────── -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-book-title">Πληροφορική<br>Γ' Γενικού Λυκείου</div>
+      <div class="sidebar-author">Γκόλφος Βασίλειος</div>
+    </div>
+
+    <div class="search-wrap">
+      <div class="search-box">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Αναζήτηση..." autocomplete="off">
+      </div>
+      <div id="searchResults"></div>
+    </div>
+
+    <div class="nav" id="navMenu">
+      <div class="nav-chapter">
+        <button class="nav-chapter-btn active" onclick="showPage('home', this)">
+          <svg style="width:14px;height:14px;flex-shrink:0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Αρχική
+        </button>
+      </div>
+
+      <div id="navChapters"></div>
+    </div>
+  </nav>
+
+  <!-- ─── Main ──────────────────────────────────────── -->
+  <main class="main">
+    <div class="content-area" id="contentArea">
+
+      <!-- HOME PAGE -->
+      <div class="chapter-page active" id="page-home">
+        <div class="home-hero">
+          <div class="home-badge">
+            <svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            Ηλεκτρονικό Βιβλίο
+          </div>
+          <h1 class="home-title">Πληροφορική<br><span>Γ' Γενικού Λυκείου</span></h1>
+          <p class="home-subtitle">Βοηθητικό υλικό για το μάθημα «Αρχές Εφαρμογών σε Προγραμματιστικό Περιβάλλον». Θεωρία, παραδείγματα και ασκήσεις για την άριστη προετοιμασία για τις Πανελλήνιες εξετάσεις.</p>
+          <div class="home-stats">
+            <div class="home-stat">
+              <div class="home-stat-num">9</div>
+              <div class="home-stat-label">Κεφάλαια</div>
+            </div>
+            <div class="home-stat">
+              <div class="home-stat-num">351</div>
+              <div class="home-stat-label">Σελίδες</div>
+            </div>
+            <div class="home-stat">
+              <div class="home-stat-num">100+</div>
+              <div class="home-stat-label">Ασκήσεις</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chapters-grid" id="homeGrid"></div>
+
+        <div class="home-info-box">
+          <div class="home-info-title">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Οδηγός χρήσης
+          </div>
+          <p style="font-size:14px;color:var(--text-2);margin:0">Χρησιμοποιήστε το <strong>πλευρικό μενού</strong> για πλοήγηση μεταξύ κεφαλαίων και ενοτήτων. Η <strong>αναζήτηση</strong> (Ctrl+K) βρίσκει άμεσα όρους σε όλο το βιβλίο. Σε κινητά, ανοίξτε το μενού με το εικονίδιο ☰ επάνω αριστερά.</p>
+        </div>
+
+        <div class="home-info-box" style="border-left:4px solid var(--accent);">
+          <div class="home-info-title">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            Συγγραφέας
+          </div>
+          <p style="font-size:14px;color:var(--text-2);margin:0"><strong>Γκόλφος Βασίλειος</strong> — Καθηγητής Πληροφορικής.<br>Τηλ: 6982871602 | Email: golfosb@outlook.com</p>
+        </div>
+      </div>
+
+      <!-- CHAPTER PAGES (generated by JS) -->
+      <div id="chapterPages"></div>
+
+    </div><!-- /content-area -->
+  </main>
+</div>
+
+<script>
+// ─── Data ──────────────────────────────────────────────────────
+const CHAPTERS = [
+  {
+    id: 1,
+    title: "Ανάλυση Προβλήματος",
+    desc: "Η έννοια του προβλήματος, κατανόηση, δομή και καθορισμός απαιτήσεων.",
+    topics: ["Πρόβλημα","Δεδομένα","Επεξεργασία","Πληροφορία","Δομή"],
+    ref: "ΑΕΠΠ Κεφ. 1",
+    sections: [
+      { id: "problem", title: "Η Έννοια Πρόβλημα" },
+      { id: "understanding", title: "Κατανόηση Προβλήματος" },
+      { id: "structure", title: "Δομή Προβλήματος" },
+      { id: "requirements", title: "Καθορισμός Απαιτήσεων" },
+      { id: "ex1", title: "Ερωτήσεις & Ασκήσεις" },
+    ],
+    content: `
+<div class="chapter-hero">
+  <div class="chapter-eyebrow">Κεφάλαιο 1 · ΑΕΠΠ Κεφ. 1</div>
+  <h1 class="chapter-title">Ανάλυση Προβλήματος</h1>
+  <p class="chapter-desc">Κατανόηση της έννοιας του προβλήματος, των δεδομένων, της επεξεργασίας και της πληροφορίας. Τα θεμέλια κάθε αλγοριθμικής σκέψης.</p>
+  <div class="chapter-meta">
+    <span class="chapter-tag">Θεωρία</span>
+    <span class="chapter-tag">Ορισμοί</span>
+    <span class="chapter-tag">Ασκήσεις</span>
+  </div>
+</div>
+
+<h2 class="section-heading" id="problem">Η Έννοια Πρόβλημα</h2>
+
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Πρόβλημα</strong> είναι μια κατάσταση η οποία χρήζει αντιμετώπισης, απαιτεί λύση, η δε λύση της <em>δεν είναι γνωστή ούτε προφανής</em>.</p>
+</div>
+
+<h2 class="section-heading" id="understanding">Κατανόηση Προβλήματος</h2>
+<h3 class="sub-heading">Στάδια αντιμετώπισης</h3>
+<p>Τα στάδια αντιμετώπισης ενός προβλήματος είναι <strong>τρία</strong>:</p>
+<ol>
+  <li><strong>Κατανόηση</strong> — απαιτείται η σωστή και πλήρης αποσαφήνιση των δεδομένων και των ζητουμένων του προβλήματος</li>
+  <li><strong>Ανάλυση</strong> — όπου το αρχικό πρόβλημα διασπάται σε άλλα επιμέρους απλούστερα προβλήματα</li>
+  <li><strong>Επίλυση</strong> — όπου υλοποιείται η λύση του γενικού προβλήματος μέσα από την λύση των επιμέρους προβλημάτων</li>
+</ol>
+<p>Η κατανόηση ενός προβλήματος είναι συνάρτηση <strong>δύο παραγόντων</strong>:
+  <ul>
+    <li>της σωστής διατύπωσης εκ μέρους του δημιουργού</li>
+    <li>της σωστής ερμηνείας από την μεριά εκείνου που καλείται να το αντιμετωπίσει</li>
+  </ul>
+</p>
+
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Δεδομένο</strong> είναι οποιοδήποτε στοιχείο μπορεί να γίνει αντιληπτό από έναν τουλάχιστον παρατηρητή με μία από τις πέντε αισθήσεις του.</p>
+</div>
+
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Επεξεργασία</strong> είναι η διαδικασία κατά την οποία ένας «μηχανισμός» που δέχεται δεδομένα, τα επεξεργάζεται σύμφωνα με έναν προκαθορισμένο τρόπο και αποδίδει πληροφορίες.</p>
+</div>
+
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Πληροφορία</strong> είναι οποιοδήποτε γνωσιακό στοιχείο προέρχεται από επεξεργασία δεδομένων.</p>
+</div>
+
+<div class="note-box" style="display: flex; flex-direction: column; align-items: center; position: relative;">
+  <div class="note-label" style="align-self: flex-start; width: 100%;">Προσοχή</div>
+  <p style="width: 100%; text-align: left;">
+    Τα δεδομένα υφίστανται επεξεργασία και παράγονται οι πληροφορίες. Την επεξεργασία αναλαμβάνει ο υπολογιστής:<br>
+    <span style="display: block; text-align: center; margin-top: 10px;">
+      <strong>Δεδομένα → Επεξεργασία δεδομένων → Πληροφορία</strong>
+    </span>
+  </p>
+  
+  <img src="pc.png" alt="icon" style="width: 50px; height: 50px; margin-top: 15px; object-fit: contain;">
+</div>
+
+<h2 class="section-heading" id="structure">Δομή Προβλήματος</h2>
+
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p>Με τον όρο <strong>δομή ενός προβλήματος</strong> αναφερόμαστε στα συστατικά του μέρη, στα επιμέρους τμήματα που το αποτελούν, καθώς και στον τρόπο που αυτά συνδέονται μεταξύ τους.</p>
+</div>
+
+<p>Η δυσκολία αντιμετώπισης των προβλημάτων ελαττώνεται όσο περισσότερο προχωράει η ανάλυσή τους σε απλούστερα προβλήματα.</p>
+
+<h3 class="sub-heading">Αναπαράσταση της ανάλυσης ενός προβλήματος</h3>
+<p>Η αναπαράσταση της ανάλυσης ενός προβλήματος μπορεί να γίνει:</p>
+<ul>
+  <li>είτε <strong>φραστικά</strong> — περιγραφή σε φυσική γλώσσα των υποπροβλημάτων στα οποία αναλύεται το κυρίως πρόβλημα</li>
+  <li>είτε <strong>διαγραμματικά</strong> — περιγραφή με διάγραμμα σε σχήμα «ανάποδου» δένδρου</li>
+</ul>
+
+<h3 class="sub-heading">Κανόνες διαγραμματικής αναπαράστασης</h3>
+<ul>
+  <li>Το αρχικό πρόβλημα αναπαρίσταται από ένα <strong>ορθογώνιο παραλληλόγραμμο</strong></li>
+  <li>Κάθε ένα από τα απλούστερα προβλήματα στα οποία αναλύεται αναπαρίσταται επίσης από ένα ορθογώνιο παραλληλόγραμμο</li>
+  <li>Τα παραλληλόγραμμα που αντιστοιχούν στα απλούστερα προβλήματα σχηματίζονται <strong>ένα επίπεδο χαμηλότερα</strong> — σε κάθε κατώτερο επίπεδο δημιουργείται η γραφική αναπαράσταση των προβλημάτων στα οποία αναλύονται τα προβλήματα του αμέσως υψηλότερου επιπέδου</li>
+</ul>
+
+<div class="example-box">
+  <div class="example-label">Παράδειγμα — Διοργάνωση Πάρτι</div>
+  <p>Παρακάτω φαίνεται η αναπαράσταση σε διάγραμμα του προβλήματος διοργάνωσης ενός πάρτι. Το αρχικό πρόβλημα διασπάται σε μικρότερα προβλήματα μέχρι ένα σημείο όπου το κάθε υποπρόβλημα είναι δυνατό να επιλυθεί με μεγαλύτερη ευκολία. Έτσι, μέσα από την επίλυση των μικρότερων αυτών υποπροβλημάτων-τμημάτων του αρχικού προβλήματος καθίσταται δυνατή η ολική επίλυσή του, δηλαδή:</p>
+  <img src="party.png" alt="icon" style="display: block; margin: 0 auto; width: 100%; max-width: 500px; height: auto;">
+</div>
+
+<h2 class="section-heading" id="requirements">Καθορισμός Απαιτήσεων</h2>
+<p>Η σωστή επίλυση ενός προβλήματος προϋποθέτει:</p>
+<ul>
+  <li>Τον <strong>επακριβή προσδιορισμό των δεδομένων</strong> που παρέχει το πρόβλημα</li>
+  <li>Την <strong>λεπτομερειακή καταγραφή των ζητουμένων</strong> που αναμένονται ως αποτελέσματα της επίλυσης του προβλήματος</li>
+</ul>
+
+<div class="exercise-section" id="ex1">
+  <div class="exercise-section-title">Ερωτήσεις Θεωρίας</div>
+  <div class="exercise-card"><div class="exercise-num">1</div><p class="exercise-text">Τι ονομάζουμε πρόβλημα;</p></div>
+  <div class="exercise-card"><div class="exercise-num">2</div><p class="exercise-text">Ποια είναι τα στάδια επίλυσης ενός προβλήματος; Να αναλυθούν.</p></div>
+  <div class="exercise-card"><div class="exercise-num">3</div><p class="exercise-text">Τι ονομάζουμε «δεδομένο»;</p></div>
+  <div class="exercise-card"><div class="exercise-num">4</div><p class="exercise-text">Τι ονομάζουμε «επεξεργασία δεδομένων»;</p></div>
+  <div class="exercise-card"><div class="exercise-num">5</div><p class="exercise-text">Τι ονομάζουμε «πληροφορία»;</p></div>
+  <div class="exercise-card"><div class="exercise-num">6</div><p class="exercise-text">Τι εννοούμε με τον όρο «δομή ενός προβλήματος»;</p></div>
+  <div class="exercise-card"><div class="exercise-num">7</div><p class="exercise-text">Πώς μπορεί να γίνει η ανάλυση ενός προβλήματος;</p></div>
+  <div class="exercise-card"><div class="exercise-num">8</div><p class="exercise-text">Να αναφέρετε τους κανόνες διαγραμματικής αναπαράστασης.</p></div>
+  <div class="exercise-card"><div class="exercise-num">9</div><p class="exercise-text">Τι προϋποθέτει η σωστή επίλυση ενός προβλήματος;</p></div>
+
+  <div class="exercise-section-title" style="margin-top:28px;">Ασκήσεις Κεφαλαίου — Σωστό / Λάθος</div>
+  <p style="margin-bottom:12px;color:var(--text-2);font-size:14px;">Να χαρακτηρίσετε κάθε μία από τις παρακάτω προτάσεις ως σωστή (ΣΩΣΤΟ) ή λανθασμένη (ΛΑΘΟΣ).</p>
+
+  <div class="exercise-card">
+    <div class="exercise-num">1</div>
+    <p class="exercise-text">Πρόβλημα είναι μια κατάσταση η οποία χρήζει αντιμετώπισης, απαιτεί λύση, η δε λύση της είναι γνωστή και συνήθως προφανής.</p>
+    <button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button>
+    <div class="solution-content"><strong>ΛΑΘΟΣ</strong> — Η λύση ενός προβλήματος ΔΕΝ είναι γνωστή ούτε προφανής.</div>
+  </div>
+  <div class="exercise-card">
+    <div class="exercise-num">2</div>
+    <p class="exercise-text">Τα στάδια αντιμετώπισης ενός προβλήματος είναι 3.</p>
+    <button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button>
+    <div class="solution-content"><strong>ΣΩΣΤΟ</strong> — Κατανόηση, Ανάλυση, Επίλυση.</div>
+  </div>
+  <div class="exercise-card">
+    <div class="exercise-num">3</div>
+    <p class="exercise-text">Η κατανόηση είναι συνάρτηση δύο παραγόντων: της ορθής διατύπωσης από τον δημιουργό και της σωστής ερμηνείας του ατόμου που το αντιμετωπίζει.</p>
+    <button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button>
+    <div class="solution-content"><strong>ΣΩΣΤΟ</strong></div>
+  </div>
+  <div class="exercise-card">
+    <div class="exercise-num">4</div>
+    <p class="exercise-text">Πληροφορία είναι οποιοδήποτε στοιχείο μπορεί να γίνει αντιληπτό από έναν τουλάχιστον παρατηρητή με μία από τις πέντε αισθήσεις του.</p>
+    <button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button>
+    <div class="solution-content"><strong>ΛΑΘΟΣ</strong> — Αυτός είναι ο ορισμός του <em>Δεδομένου</em>. Η πληροφορία προέρχεται από επεξεργασία δεδομένων.</div>
+  </div>
+  <div class="exercise-card">
+    <div class="exercise-num">5</div>
+    <p class="exercise-text">Κατά την επεξεργασία δεδομένων ένας μηχανισμός δέχεται πληροφορίες, τις επεξεργάζεται και παράγει στο τέλος δεδομένα.</p>
+    <button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button>
+    <div class="solution-content"><strong>ΛΑΘΟΣ</strong> — Ο μηχανισμός δέχεται <em>δεδομένα</em> και παράγει <em>πληροφορίες</em>, όχι το αντίστροφο.</div>
+  </div>
+  <div class="exercise-card">
+    <div class="exercise-num">6</div>
+    <p class="exercise-text">Ένα οποιοδήποτε πρόβλημα μπορεί να αναπαρασταθεί είτε διαγραμματικά, είτε φραστικά, είτε αλγεβρικά.</p>
+    <button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button>
+    <div class="solution-content"><strong>ΛΑΘΟΣ</strong> — Η αναπαράσταση γίνεται <em>φραστικά</em> ή <em>διαγραμματικά</em>. Δεν υπάρχει αλγεβρική αναπαράσταση.</div>
+  </div>
+</div>
+`
+  },
+  {
+    id: 2,
+    title: "Βασικές Έννοιες Αλγορίθμων",
+    desc: "Αλγόριθμος, εντολές, τελεστές, τύποι δεδομένων, δομές ακολουθίας, επιλογής και επανάληψης.",
+    topics: ["Αλγόριθμος","Εντολές","Τελεστές","Επιλογή","Επανάληψη","Διάγραμμα Ροής"],
+    ref: "ΑΕΠΠ Κεφ. 2",
+    sections: [
+      { id: "algo-def", title: "Τι είναι Αλγόριθμος" },
+      { id: "importance", title: "Σπουδαιότητα Αλγορίθμων" },
+      { id: "elements", title: "Βασικά Στοιχεία της Γλώσσας" },
+      { id: "logic-ops", title: "Λογικές Πράξεις & Πίνακας Αλήθειας" },
+      { id: "flow-symbols", title: "Σύμβολα Διαγράμματος Ροής" },
+      { id: "structures", title: "Βασικές Αλγοριθμικές Δομές" },
+      { id: "ex2", title: "Ερωτήσεις & Ασκήσεις" },
+    ],
+    content: `
+<div class="chapter-hero">
+  <div class="chapter-eyebrow">Κεφάλαιο 2 · ΑΕΠΠ Κεφ. 2</div>
+  <h1 class="chapter-title">Βασικές Έννοιες Αλγορίθμων</h1>
+  <p class="chapter-desc">Ορισμός και κριτήρια αλγορίθμου, εντολές ΓΛΩΣΣΑ, τύποι δεδομένων, τελεστές, λογικές πράξεις και βασικές αλγοριθμικές δομές.</p>
+  <div class="chapter-meta">
+    <span class="chapter-tag">Αλγόριθμος</span>
+    <span class="chapter-tag">Δομές Ελέγχου</span>
+    <span class="chapter-tag">ΓΛΩΣΣΑ</span>
+  </div>
+</div>
+
+<h2 class="section-heading" id="algo-def">Τι είναι Αλγόριθμος</h2>
+
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Αλγόριθμος</strong> είναι μια πεπερασμένη σειρά ενεργειών, αυστηρά καθορισμένων και εκτελέσιμων σε πεπερασμένο χρόνο, που στοχεύουν στην επίλυση ενός προβλήματος.</p>
+</div>
+
+<div class="note-box">
+  <div class="note-label">Προσοχή</div>
+  <p>Η έννοια του αλγορίθμου <strong>δεν συνδέεται αποκλειστικά</strong> με προβλήματα Πληροφορικής. Κάθε συνταγή μαγειρικής, οδηγία συναρμολόγησης κ.λπ. αποτελεί αλγόριθμο!</p>
+</div>
+
+<h3 class="sub-heading">Κριτήρια Αλγορίθμου</h3>
+<p>Κάθε αλγόριθμος πρέπει απαραίτητα να ικανοποιεί τα παρακάτω κριτήρια:</p>
+<ol>
+  <li><strong>Είσοδος</strong> — καμία, μία ή περισσότερες τιμές δεδομένων θα πρέπει να δίνονται ως είσοδοι</li>
+  <li><strong>Έξοδος</strong> — ο αλγόριθμος πρέπει να δημιουργεί τουλάχιστον μία τιμή δεδομένων ως αποτέλεσμα</li>
+  <li><strong>Καθοριστικότητα</strong> — κάθε εντολή πρέπει να είναι σαφής</li>
+  <li><strong>Περατότητα</strong> — ο αλγόριθμος να τελειώνει μετά από πεπερασμένα βήματα</li>
+  <li><strong>Αποτελεσματικότητα</strong> — κάθε εντολή πρέπει να είναι εκτελέσιμη</li>
+</ol>
+
+<h2 class="section-heading" id="importance">Σπουδαιότητα Αλγορίθμων</h2>
+<p>Η Πληροφορική μπορεί να οριστεί ως η επιστήμη που μελετά τους αλγορίθμους από τις ακόλουθες σκοπιές:</p>
+<ol>
+  <li><strong>Υλικού</strong> — Η ταχύτητα εκτέλεσης ενός αλγορίθμου επηρεάζεται από τις τεχνολογίες υλικού και τον τρόπο που είναι δομημένα τα συστατικά του υπολογιστή</li>
+  <li><strong>Γλωσσών Προγραμματισμού</strong> — Το είδος της γλώσσας (χαμηλότερου ή υψηλότερου επιπέδου) αλλάζει τη δομή και τον αριθμό εντολών ενός αλγορίθμου</li>
+  <li><strong>Θεωρητική</strong> — Εξετάζεται αν πράγματι υπάρχει αποδοτικός αλγόριθμος για την επίλυση ενός προβλήματος</li>
+  <li><strong>Αναλυτική</strong> — Μελετώνται οι υπολογιστικοί πόροι που απαιτούνται από έναν αλγόριθμο</li>
+</ol>
+
+<h2 class="section-heading" id="elements">Περιγραφή και Αναπαράσταση Αλγορίθμων</h2>
+<p>Η αναπαράσταση ενός αλγορίθμου μπορεί να γίνει με τους εξής τρόπους:</p>
+<ol>
+  <li>Με <strong>ελεύθερο κείμενο</strong></li>
+  <li>Με <strong>διαγραμματικές τεχνικές</strong> (διάγραμμα ροής)</li>
+  <li>Με <strong>φυσική γλώσσα</strong> κατά βήματα</li>
+  <li>Με <strong>κωδικοποίηση</strong> σε ψευδογλώσσα ή γλώσσα προγραμματισμού</li>
+</ol>
+
+<h2 class="section-heading" id="elements">Βασικά Στοιχεία της Γλώσσας</h2>
+
+<h3 class="sub-heading">1. Εντολές</h3>
+
+<div class="code-block">
+  <div class="code-label">Α) Εντολή Εισόδου</div>
+  <pre><span class="kw">ΔΙΑΒΑΣΕ</span> μεταβλητή/-ές
+
+<span class="cmt">! Παραδείγματα:</span>
+<span class="kw">ΔΙΑΒΑΣΕ</span> x
+<span class="kw">ΔΙΑΒΑΣΕ</span> ονομα
+<span class="kw">ΔΙΑΒΑΣΕ</span> ηλικια</pre>
+</div>
+
+<p>&hookrightarrow; Ο υπολογιστής διακόπτει την εκτέλεση του προγράμματος και αναμένει πληκτρολόγηση από τον χρήστη.</p>
+
+<div class="code-block">
+  <div class="code-label">Β) Εντολή Εξόδου</div>
+  <pre><span class="kw">ΓΡΑΨΕ</span> μεταβλητή/-ές  <span class="kw">ή</span>  <span class="kw">ΓΡΑΨΕ</span> <span class="str">'μήνυμα'</span>
+
+<span class="cmt">! Παραδείγματα:</span>
+<span class="kw">ΓΡΑΨΕ</span> <span class="str">'Πληροφορική'</span>    <span class="cmt">→ εμφανίζει: Πληροφορική</span>
+<span class="kw">ΓΡΑΨΕ</span> αποτελεσμα</pre>
+</div>
+
+<p>&hookrightarrow; Ο υπολογιστής εμφανίζει στη οθόνη μηνύματα, αποτελέσματα</p>
+
+<div class="code-block">
+  <div class="code-label">Γ) Εντολή Εκχώρησης</div>
+  <pre>Μεταβλητή ← έκφραση
+
+<span class="cmt">! Παραδείγματα:</span>
+Χ ← <span class="num">20</span>      <span class="cmt">! το Χ λαμβάνει τιμή 20</span>
+Χ ← Χ + <span class="num">1</span>  <span class="cmt">! αύξηση Χ κατά 1 (π.χ. αν ήταν 10, γίνεται 11)</span></pre>
+</div>
+
+<div class="warn-box">
+  <div class="warn-label">Προσοχή</div>
+  <p>Χρησιμοποιούμε <strong>ΜΟΝΟ μία μεταβλητή</strong> αριστερά από την εντολή εκχώρησης (←).</p>
+</div>
+
+<h3 class="sub-heading">2. Τελεστέοι</h3>
+Οι τελεστέοι αποτελούνται από τις <strong>σταθερές</strong> και τις <strong>μεταβλητές</strong>
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Σταθερές</strong> είναι προκαθορισμένες τιμές που παραμένουν αμετάβλητες σε όλη τη διάρκεια εκτέλεσης του προγράμματος.</p>
+</div>
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Μεταβλητές</strong> ονομάζονται τα μεγέθη των οποίων η τιμή μπορεί να αλλάξει κατά τη διάρκεια εκτέλεσης.</p>
+</div>
+
+<h3 class="sub-heading">Κανόνες ονομασίας μεταβλητών και σταθερών</h3>
+<p>Τα ονόματα πρέπει να περιλαμβάνουν μόνο: ελληνικούς ή αγγλικούς χαρακτήρες, αριθμητικά ψηφία και τον χαρακτήρα <code>_</code> (κάτω παύλα). <strong>Ξεκινάνε πάντα με γράμμα</strong> και δεν ταυτίζονται με δεσμευμένες λέξεις.</p>
+
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Όνομα</th><th>Αποτέλεσμα</th><th>Αιτία</th></tr></thead>
+    <tbody>
+      <tr><td>άθροισμα-μαθητών</td><td style="color:#dc2626">Λάθος</td><td>Δεν επιτρέπεται κάτω παύλα ως σύμβολο (-)</td></tr>
+      <tr><td>max 1</td><td style="color:#dc2626">Λάθος</td><td>Δεν επιτρέπεται το κενό</td></tr>
+      <tr><td>μ.ο.</td><td style="color:#dc2626">Λάθος</td><td>Δεν επιτρέπεται η τελεία</td></tr>
+      <tr><td>1ος_μαθητής</td><td style="color:#dc2626">Λάθος</td><td>Δεν επιτρέπεται να ξεκινά με αριθμό</td></tr>
+      <tr><td>χ/ψ</td><td style="color:#dc2626">Λάθος</td><td>Υπάρχει το σύμβολο '/'</td></tr>
+      <tr><td>ΑΛΗΘΗΣ</td><td style="color:#dc2626">Λάθος</td><td>Δεσμευμένη λέξη</td></tr>
+      <tr><td>ΠΡΟΓΡΑΜΜΑ</td><td style="color:#dc2626">Λάθος</td><td>Δεσμευμένη λέξη</td></tr>
+      <tr><td>Τιμή_Αγοράς</td><td style="color:var(--green)">Σωστό</td><td>—</td></tr>
+      <tr><td>α1</td><td style="color:var(--green)">Σωστό</td><td>—</td></tr>
+      <tr><td>Β_1</td><td style="color:var(--green)">Σωστό</td><td>—</td></tr>
+      <tr><td>χ23</td><td style="color:var(--green)">Σωστό</td><td>—</td></tr>
+      <tr><td>Ψευδής1</td><td style="color:var(--green)">Σωστό</td><td>—</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Δεσμευμένες</strong> είναι οι λέξεις που χρησιμοποιούνται από την ίδια τη ΓΛΩΣΣΑ για συγκεκριμένους λόγους και δεν μπορούν να χρησιμοποιηθούν ως ονόματα μεταβλητών (π.χ. ΠΡΟΓΡΑΜΜΑ, ΜΕΤΑΒΛΗΤΕΣ, ΑΡΧΗ, ΓΡΑΨΕ).</p>
+</div>
+
+<h3 class="sub-heading">Τύποι δεδομένων</h3>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Τύπος</th><th>Περιγραφή</th><th>Παραδείγματα</th></tr></thead>
+    <tbody>
+      <tr><td>Ακέραιοι</td><td>Ακέραιοι αριθμοί</td><td>12, 5, -3</td></tr>
+      <tr><td>Πραγματικοί</td><td>Αριθμοί με δεκαδικό μέρος</td><td>12.5, 6.98, 3.00</td></tr>
+      <tr><td>Αλφαριθμητικοί / Χαρακτήρες</td><td>Λέξεις / φράσεις σε εισαγωγικά</td><td>«Πληροφορική», «Γιώργος»</td></tr>
+      <tr><td>Λογικοί</td><td>Αληθής ή Ψευδής μόνο</td><td>ΑΛΗΘΗΣ, ΨΕΥΔΗΣ</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h3 class="sub-heading">3. Τελεστές</h3>
+
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th colspan="3">Α) Αριθμητικοί Τελεστές</th></tr>
+    <tr><th>Τελεστής</th><th>Πράξη</th><th>Παράδειγμα</th></tr></thead>
+    <tbody>
+      <tr><td>^</td><td>Ύψωση σε δύναμη</td><td>4^2 = 16</td></tr>
+      <tr><td>*</td><td>Πολλαπλασιασμός</td><td>2*5 = 10</td></tr>
+      <tr><td>/</td><td>Διαίρεση</td><td>5/2 = 2.5</td></tr>
+      <tr><td>DIV</td><td>Ακέραιο πηλίκο διαίρεσης</td><td>13 DIV 3 = 4</td></tr>
+      <tr><td>MOD</td><td>Ακέραιο υπόλοιπο διαίρεσης</td><td>13 MOD 3 = 1</td></tr>
+      <tr><td>+</td><td>Πρόσθεση</td><td>7+1 = 8</td></tr>
+      <tr><td>-</td><td>Αφαίρεση</td><td>7-5 = 2</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th colspan="3">Β) Λογικοί Τελεστές</th></tr>
+    <tr><th>Τελεστής</th><th>Πράξη</th><th>Παράδειγμα</th></tr></thead>
+    <tbody>
+      <tr><td>ΟΧΙ</td><td>Άρνηση</td><td>ΟΧΙ ΑΛΗΘΗΣ = ΨΕΥΔΗΣ</td></tr>
+      <tr><td>ΚΑΙ</td><td>Σύζευξη</td><td>ΑΛΗΘΗΣ ΚΑΙ ΨΕΥΔΗΣ = ΨΕΥΔΗΣ</td></tr>
+      <tr><td>Η</td><td>Διάζευξη</td><td>ΑΛΗΘΗΣ Η ΨΕΥΔΗΣ = ΑΛΗΘΗΣ</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th colspan="3">Γ) Συγκριτικοί Τελεστές</th></tr>
+    <tr><th>Τελεστής</th><th>Πράξη</th><th>Παράδειγμα</th></tr></thead>
+    <tbody>
+      <tr><td>=</td><td>Ίσο</td><td>5=4 → ΨΕΥΔΗΣ</td></tr>
+      <tr><td>&lt;&gt;</td><td>Διάφορο</td><td>5&lt;&gt;4 → ΑΛΗΘΗΣ</td></tr>
+      <tr><td>&gt;=</td><td>Μεγαλύτερο ή ίσο</td><td>5&gt;=4 → ΑΛΗΘΗΣ</td></tr>
+      <tr><td>&lt;=</td><td>Μικρότερο ή ίσο</td><td>5&lt;=5 → ΑΛΗΘΗΣ</td></tr>
+      <tr><td>&gt;</td><td>Μεγαλύτερο</td><td>7&gt;4 → ΑΛΗΘΗΣ</td></tr>
+      <tr><td>&lt;</td><td>Μικρότερο</td><td>4&lt;7 → ΑΛΗΘΗΣ</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="note-box">
+  <div class="note-label">Σημαντικό</div>
+  <p>Στους λογικούς και συγκριτικούς τελεστές το αποτέλεσμα της πράξης είναι πάντοτε <strong>ΑΛΗΘΗΣ ή ΨΕΥΔΗΣ</strong>.</p>
+</div>
+
+<h3 class="sub-heading">Προτεραιότητα Πράξεων</h3>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Αριθμητικοί (↓ προτεραιότητα)</th><th>Λογικοί (↓ προτεραιότητα)</th></tr></thead>
+    <tbody>
+      <tr><td>( )</td><td>ΟΧΙ</td></tr>
+      <tr><td>^</td><td>ΚΑΙ</td></tr>
+      <tr><td>* / MOD DIV</td><td>Η</td></tr>
+      <tr><td>+ -</td><td>—</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h3 class="sub-heading">Τύποι Διαίρεσης</h3>
+<ul>
+  <li><strong>MOD</strong> (υπόλοιπο) — «τι περισσεύει» αν διαιρέσουμε έναν αριθμό με άλλον:<br>
+    9 mod 4 = 1 &nbsp;|&nbsp; 8 mod 1 = 0 &nbsp;|&nbsp; 15 mod 2 = 1 &nbsp;|&nbsp; 2 mod 7 = 2</li>
+  <li><strong>DIV</strong> (ακέραιο πηλίκο) — πόσες ακέραιες φορές «χωράει» ένας αριθμός σε άλλον:<br>
+    9 div 4 = 2 &nbsp;|&nbsp; 8 div 1 = 8 &nbsp;|&nbsp; 15 div 2 = 7 &nbsp;|&nbsp; 2 div 7 = 0</li>
+</ul>
+
+<h3 class="sub-heading">4. Συναρτήσεις ΓΛΩΣΣΑ</h3>
+<p>Στην «ΓΛΩΣΣΑ» υπάρχουν <strong>8 έτοιμες συναρτήσεις</strong>:</p>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Συνάρτηση</th><th>Λειτουργία</th><th>Παράδειγμα</th></tr></thead>
+    <tbody>
+      <tr><td>Τ_Ρ( )</td><td>Τετραγωνική ρίζα</td><td>Τ_Ρ(9) = 3</td></tr>
+      <tr><td>Α_Τ( )</td><td>Απόλυτη τιμή</td><td>Α_Τ(-2) = 2</td></tr>
+      <tr><td>Α_Μ( )</td><td>Ακέραιο μέρος (δεν στρογγυλοποιεί)</td><td>Α_Μ(7.56) = 7</td></tr>
+      <tr><td>Ε( )</td><td>Εκθετική συνάρτηση</td><td>Ε(2) = e² ≈ 7.38</td></tr>
+      <tr><td>ΛΟΓ( )</td><td>Λογαριθμική</td><td>ΛΟΓ(1) = 0</td></tr>
+      <tr><td>ΗΜ( )</td><td>Ημίτονο</td><td>ΗΜ(0) = 0</td></tr>
+      <tr><td>ΣΥΝ( )</td><td>Συνημίτονο</td><td>ΣΥΝ(0) = 1</td></tr>
+      <tr><td>ΕΦ( )</td><td>Εφαπτομένη</td><td>ΕΦ(0) = 0</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="warn-box">
+  <div class="warn-label">Προσοχή</div>
+  <p>Το Α_Μ( ) <strong>ΔΕΝ στρογγυλοποιεί</strong> αλλά εμφανίζει τον αριθμό που βρίσκεται πριν το δεκαδικό ψηφίο! Π.χ. Α_Μ(7.99) = 7.</p>
+</div>
+
+<h3 class="sub-heading">5. Εκφράσεις</h3>
+<p>Οι εκφράσεις χωρίζονται σε:</p>
+<ul>
+  <li><strong>Αριθμητικές εκφράσεις</strong>: πράξεις με αποτέλεσμα αριθμό (π.χ. x+y^2)</li>
+  <li><strong>Απλές λογικές εκφράσεις</strong>: συγκρίσεις με αριθμητικούς και συγκριτικούς τελεστές (π.χ. x&lt;y)</li>
+  <li><strong>Σύνθετες λογικές εκφράσεις</strong>: περιέχουν και λογικούς τελεστές (π.χ. x&lt;y ΚΑΙ x&gt;y)</li>
+</ul>
+
+<h3 class="sub-heading">Δομή Προγράμματος</h3>
+<div class="code-block">
+  <div class="code-label">Γενική Δομή Προγράμματος</div>
+  <pre><span class="kw">ΠΡΟΓΡΑΜΜΑ</span> Όνομα_Προγράμματος
+<span class="kw">ΣΤΑΘΕΡΕΣ</span>
+    ΦΠΑ = 24/100
+<span class="kw">ΜΕΤΑΒΛΗΤΕΣ</span>
+    ΑΚΕΡΑΙΕΣ: ΠΛΗΘΟΣ
+    ΠΡΑΓΜΑΤΙΚΕΣ: ΤΙΜΗ
+    ΧΑΡΑΚΤΗΡΕΣ: ΟΝΟΜΑ
+    ΛΟΓΙΚΕΣ: ΒΡΕΘΗΚΕ
+<span class="kw">ΑΡΧΗ</span>
+    εντολές
+    ...
+<span class="kw">ΤΕΛΟΣ_ΠΡΟΓΡΑΜΜΑΤΟΣ</span></pre>
+</div>
+
+<h2 class="section-heading" id="logic-ops">Λογικές Πράξεις &amp; Πίνακας Αλήθειας</h2>
+
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Πρόταση Α</th><th>Πρόταση Β</th><th>Α ΚΑΙ Β</th><th>Α Η Β</th><th>ΟΧΙ Α</th></tr></thead>
+    <tbody>
+      <tr><td>ΑΛΗΘΗΣ</td><td>ΑΛΗΘΗΣ</td><td style="color:var(--green);font-weight:600">ΑΛΗΘΗΣ</td><td style="color:var(--green);font-weight:600">ΑΛΗΘΗΣ</td><td style="color:#dc2626;font-weight:600">ΨΕΥΔΗΣ</td></tr>
+      <tr><td>ΑΛΗΘΗΣ</td><td>ΨΕΥΔΗΣ</td><td style="color:#dc2626;font-weight:600">ΨΕΥΔΗΣ</td><td style="color:var(--green);font-weight:600">ΑΛΗΘΗΣ</td><td style="color:#dc2626;font-weight:600">ΨΕΥΔΗΣ</td></tr>
+      <tr><td>ΨΕΥΔΗΣ</td><td>ΑΛΗΘΗΣ</td><td style="color:#dc2626;font-weight:600">ΨΕΥΔΗΣ</td><td style="color:var(--green);font-weight:600">ΑΛΗΘΗΣ</td><td style="color:var(--green);font-weight:600">ΑΛΗΘΗΣ</td></tr>
+      <tr><td>ΨΕΥΔΗΣ</td><td>ΨΕΥΔΗΣ</td><td style="color:#dc2626;font-weight:600">ΨΕΥΔΗΣ</td><td style="color:#dc2626;font-weight:600">ΨΕΥΔΗΣ</td><td style="color:var(--green);font-weight:600">ΑΛΗΘΗΣ</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="note-box">
+  <div class="note-label">Κανόνες</div>
+  <p>Στο <strong>ΚΑΙ</strong>: πρέπει να ισχύουν <em>και οι δύο</em> προτάσεις για να έχω αληθές αποτέλεσμα.<br>
+  Στο <strong>Η</strong>: αρκεί να ισχύει <em>η μία</em> από τις δύο προτάσεις.</p>
+</div>
+
+<div class="note-box">
+  <div class="note-label">Σύγκριση αλφαριθμητικών</div>
+  <p>Το αλφάβητο είναι αύξον: α &lt; β &lt; γ &lt; … &lt; ω. Συγκρίνουμε λέξεις γράμμα-γράμμα:<br>
+  ΒΑΣΙΛΗΣ &lt; ΚΩΣΤΑΣ | ΓΙΩΡΓΟΣ &gt; ΓΙΑΝΝΗΣ | ΜΑΡΙΑΝΝΑ &lt; ΜΑΡΙΟΣ | ΠΑΡΑΔΕΙΓΜΑ &lt; ΠΑΡΑΔΕΙΓΜΑΤΟΣ</p>
+</div>
+
+<h2 class="section-heading" id="flow-symbols">Σύμβολα Διαγράμματος Ροής</h2>
+<p>Τα διαγράμματα ροής χρησιμοποιούν γεωμετρικά σχήματα ενωμένα με βέλη:</p>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Σύμβολο</th><th>Ονομασία</th><th>Χρήση</th></tr></thead>
+    <tbody>
+      <tr><td>⬭ Έλλειψη</td><td>Έναρξη / Λήξη</td><td>Αρχή και τέλος κάθε προγράμματος</td></tr>
+      <tr><td>◇ Ρόμβος</td><td>Απόφαση</td><td>Συνθήκες (ΑΝ)</td></tr>
+      <tr><td>▭ Ορθογώνιο</td><td>Επεξεργασία</td><td>Εκτέλεση πράξεων, εκχώρηση</td></tr>
+      <tr><td>▱ Πλάγιο παραλληλόγραμμο</td><td>Είσοδος / Έξοδος</td><td>ΔΙΑΒΑΣΕ / ΓΡΑΨΕ</td></tr>
+      <tr><td>→ Βέλη</td><td>Ροή εκτέλεσης</td><td>Σειρά εκτέλεσης ενεργειών</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 class="section-heading" id="structures">Βασικές Αλγοριθμικές Δομές</h2>
+
+<h3 class="sub-heading">Δομή Ακολουθίας</h3>
+<p>Η ακολουθιακή δομή χρησιμοποιείται για απλά προβλήματα όπου είναι δεδομένη η σειρά εκτέλεσης. <strong>Όλες οι εντολές εκτελούνται ακριβώς μία φορά.</strong></p>
+
+<h3 class="sub-heading">Δομή Επιλογής</h3>
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Συνθήκη</strong> είναι μία σύγκριση (λογική έκφραση) που μπορεί να πάρει δύο τιμές (ΑΛΗΘΗΣ ή ΨΕΥΔΗΣ).</p>
+</div>
+<p>Υπάρχουν <strong>4 δομές επιλογής</strong>: Απλή, Σύνθετη, Πολλαπλή, Εμφωλευμένη.</p>
+
+<div class="code-block">
+  <div class="code-label">📘 1. Απλή Επιλογή</div>
+  <pre><span class="kw">ΑΝ</span> συνθήκη <span class="kw">ΤΟΤΕ</span>
+    εντολή
+<span class="kw">ΤΕΛΟΣ_ΑΝ</span></pre>
+</div>
+<p>Αν η συνθήκη ισχύει (αληθής), εκτελούνται οι εντολές μεταξύ ΤΟΤΕ και ΤΕΛΟΣ_ΑΝ. Αλλιώς αγνοούνται.</p>
+
+<div class="code-block">
+  <div class="code-label">📘 2. Σύνθετη Επιλογή</div>
+  <pre><span class="kw">ΑΝ</span> συνθήκη <span class="kw">ΤΟΤΕ</span>
+    εντολή_1
+<span class="kw">ΑΛΛΙΩΣ</span>
+    εντολή_2
+<span class="kw">ΤΕΛΟΣ_ΑΝ</span></pre>
+</div>
+<p>Ποτέ και οι δύο ομάδες εντολών σε μία εκτέλεση.</p>
+
+<div class="code-block">
+  <div class="code-label">📘 3. Πολλαπλή Επιλογή</div>
+  <pre><span class="kw">ΑΝ</span> συνθήκη1 <span class="kw">ΤΟΤΕ</span>
+    εντολή_1
+<span class="kw">ΑΛΛΙΩΣ_ΑΝ</span> συνθήκη2 <span class="kw">ΤΟΤΕ</span>
+    εντολή_2
+<span class="kw">ΑΛΛΙΩΣ_ΑΝ</span> συνθήκη3 <span class="kw">ΤΟΤΕ</span>
+    εντολή_3
+    …
+<span class="kw">ΑΛΛΙΩΣ</span>
+    εντολή_Ν
+<span class="kw">ΤΕΛΟΣ_ΑΝ</span></pre>
+</div>
+
+<div class="code-block">
+  <div class="code-label">📘 Δομή ΕΠΙΛΕΞΕ (εναλλακτική)</div>
+  <pre><span class="kw">ΕΠΙΛΕΞΕ</span> έκφραση
+  <span class="kw">ΠΕΡΙΠΤΩΣΗ</span> λίστα_τιμών_1
+    εντολές_1
+  <span class="kw">ΠΕΡΙΠΤΩΣΗ</span> λίστα_τιμών_2
+    εντολές_2
+  <span class="kw">ΠΕΡΙΠΤΩΣΗ ΑΛΛΙΩΣ</span>
+    εντολές_άλλων
+<span class="kw">ΤΕΛΟΣ_ΕΠΙΛΟΓΩΝ</span></pre>
+</div>
+<p>Η ΠΕΡΙΠΤΩΣΗ ΑΛΛΙΩΣ είναι <em>προαιρετική</em>. Η εκτέλεση συνεχίζεται με την εντολή μετά το ΤΕΛΟΣ_ΕΠΙΛΟΓΩΝ.</p>
+
+<div class="code-block">
+  <div class="code-label">📘 4. Εμφωλευμένη Επιλογή</div>
+  <pre><span class="kw">ΑΝ</span> συνθήκη <span class="kw">ΤΟΤΕ</span>
+    <span class="kw">ΑΝ</span> συνθήκη <span class="kw">ΤΟΤΕ</span>
+        εντολή
+    <span class="kw">ΑΛΛΙΩΣ</span>
+        εντολή
+    <span class="kw">ΤΕΛΟΣ_ΑΝ</span>
+<span class="kw">ΑΛΛΙΩΣ</span>
+    <span class="kw">ΑΝ</span> συνθήκη <span class="kw">ΤΟΤΕ</span>
+        εντολή
+    <span class="kw">ΑΛΛΙΩΣ</span>
+        εντολή
+    <span class="kw">ΤΕΛΟΣ_ΑΝ</span>
+<span class="kw">ΤΕΛΟΣ_ΑΝ</span></pre>
+</div>
+
+<div class="warn-box">
+  <div class="warn-label">Προσοχή</div>
+  <p>Πρέπει να αποφεύγεται, αν είναι δυνατόν, η χρήση εμφωλευμένων ΑΝ. Οι επιπλέον έλεγχοι αυξάνουν την πολυπλοκότητα και συχνά καθυστερούν την εκτέλεση.</p>
+</div>
+
+<h3 class="sub-heading">Δομή Επανάληψης</h3>
+<div class="def-box">
+  <div class="def-label">Ορισμοί</div>
+  <p><strong>Βρόχος</strong>: το τμήμα των εντολών που επαναλαμβάνεται μέσα στη δομή επανάληψης.<br>
+  <strong>Ατέρμων βρόχος</strong>: βρόχος που δεν τερματίζεται ποτέ — παραβιάζει το κριτήριο της περατότητας.<br>
+  <strong>Τιμή φρουρός</strong>: τιμή που ορίζεται από τον προγραμματιστή για τον τερματισμό επαναληπτικής διαδικασίας.</p>
+</div>
+<p>Υπάρχουν <strong>3 δομές επανάληψης</strong>:</p>
+
+<div class="code-block">
+  <div class="code-label">📘📘 1. ΟΣΟ_ΕΠΑΝΑΛΑΒΕ — χρησιμοποιείται όταν ΔΕΝ γνωρίζουμε τον αριθμό επαναλήψεων</div>
+  <pre><span class="kw">ΟΣΟ</span> συνθήκη <span class="kw">ΕΠΑΝΑΛΑΒΕ</span>
+    εντολές
+<span class="kw">ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ</span></pre>
+</div>
+<ul>
+  <li>Η εκτέλεση επαναλαμβάνεται <strong>όσο η συνθήκη είναι αληθής</strong></li>
+  <li>Αν η συνθήκη την πρώτη φορά δεν είναι αληθής, <strong>δεν εκτελείται καμία φορά</strong></li>
+  <li>Πρέπει να υπάρχει εντολή που μεταβάλλει την τιμή της συνθήκης αλλιώς → ατέρμων βρόχος</li>
+</ul>
+
+<div class="code-block">
+  <div class="code-label">📘📘 2. ΜΕΧΡΙΣ_ΟΤΟΥ — εκτελείται τουλάχιστον 1 φορά</div>
+  <pre><span class="kw">ΑΡΧΗ_ΕΠΑΝΑΛΗΨΗΣ</span>
+    εντολές
+<span class="kw">ΜΕΧΡΙΣ_ΟΤΟΥ</span> συνθήκη</pre>
+</div>
+<ul>
+  <li>Η εκτέλεση επαναλαμβάνεται <strong>όσο η συνθήκη είναι ψευδής</strong>. Μόλις γίνει αληθής σταματά</li>
+  <li><strong>Εκτελείται πάντα τουλάχιστον μία φορά</strong> (η συνθήκη ελέγχεται στο τέλος)</li>
+  <li>Προτιμάται για <strong>έλεγχο εγκυρότητας</strong> και επιλογή από μενού</li>
+</ul>
+
+<div class="code-block">
+  <div class="code-label">📘📘 3. ΓΙΑ…ΑΠΟ…ΜΕΧΡΙ — χρησιμοποιείται όταν ΓΝΩΡΙΖΟΥΜΕ τον αριθμό επαναλήψεων</div>
+  <pre><span class="kw">ΓΙΑ</span> μετρητής <span class="kw">ΑΠΟ</span> αρχική_τιμή <span class="kw">ΜΕΧΡΙ</span> τελική_τιμή <span class="kw">ΜΕ_ΒΗΜΑ</span> αριθμός
+    εντολές
+<span class="kw">ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ</span></pre>
+</div>
+<p>Όταν το βήμα είναι 1, μπορεί να παραλειφθεί το «ΜΕ_ΒΗΜΑ 1».</p>
+
+<h3 class="sub-heading">Μετατροπές μεταξύ δομών επανάληψης</h3>
+<div class="code-block">
+  <div class="code-label">ΟΣΟ → ΜΕΧΡΙΣ_ΟΤΟΥ (Α' τρόπος — με ΑΝ)</div>
+  <pre><span class="cmt">! Αρχικό:</span>
+<span class="kw">ΟΣΟ</span> συνθήκη <span class="kw">ΕΠΑΝΑΛΑΒΕ</span>
+    εντολές
+<span class="kw">ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ</span>
+
+<span class="cmt">! Ισοδύναμο:</span>
+<span class="kw">ΑΝ</span> συνθήκη <span class="kw">ΤΟΤΕ</span>
+    <span class="kw">ΑΡΧΗ_ΕΠΑΝΑΛΗΨΗΣ</span>
+        εντολές
+    <span class="kw">ΜΕΧΡΙΣ_ΟΤΟΥ</span> ΟΧΙ(συνθήκη)
+<span class="kw">ΤΕΛΟΣ_ΑΝ</span></pre>
+</div>
+<div class="code-block">
+  <div class="code-label">ΟΣΟ → ΜΕΧΡΙΣ_ΟΤΟΥ (Β' τρόπος — με αντιστροφή)</div>
+  <pre><span class="kw">ΑΡΧΗ_ΕΠΑΝΑΛΗΨΗΣ</span>
+    εντολές
+<span class="kw">ΜΕΧΡΙΣ_ΟΤΟΥ</span> ΟΧΙ(συνθήκη)</pre>
+</div>
+<div class="code-block">
+  <div class="code-label">ΜΕΧΡΙΣ_ΟΤΟΥ → ΟΣΟ</div>
+  <pre>εντολές
+<span class="kw">ΟΣΟ</span> ΟΧΙ(συνθήκη) <span class="kw">ΕΠΑΝΑΛΑΒΕ</span>
+    εντολές
+<span class="kw">ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ</span></pre>
+</div>
+
+<div class="note-box">
+  <div class="note-label">Παγίδα μετατροπής</div>
+  <p>Προσοχή στις μετατροπές ΟΣΟ ↔ ΓΙΑ: αν η συνθήκη δεν περιέχει «=» (π.χ. <code>ΟΣΟ i &lt; 10</code>), το ισοδύναμο ΓΙΑ θα πρέπει να έχει <code>ΜΕΧΡΙ 9</code> και όχι <code>ΜΕΧΡΙ 10</code>.</p>
+</div>
+
+<div class="exercise-section" id="ex2">
+  <div class="exercise-section-title">Ερωτήσεις Θεωρίας</div>
+  <div class="exercise-card"><div class="exercise-num">1</div><p class="exercise-text">Τι ονομάζουμε αλγόριθμο;</p></div>
+  <div class="exercise-card"><div class="exercise-num">2</div><p class="exercise-text">Ποια είναι τα κριτήρια που πρέπει να ικανοποιεί ένας αλγόριθμος;</p></div>
+  <div class="exercise-card"><div class="exercise-num">3</div><p class="exercise-text">Από ποιες σκοπιές μελετά η Πληροφορική τους αλγορίθμους (ονομαστική αναφορά);</p></div>
+  <div class="exercise-card"><div class="exercise-num">4</div><p class="exercise-text">Με ποιους τρόπους μπορεί να γίνει αναπαράσταση ενός αλγορίθμου;</p></div>
+  <div class="exercise-card"><div class="exercise-num">5</div><p class="exercise-text">Ποια είναι τα βασικά στοιχεία της «ΓΛΩΣΣΑΣ»;</p></div>
+  <div class="exercise-card"><div class="exercise-num">6</div><p class="exercise-text">Από τι αποτελούνται οι τελεστέοι;</p></div>
+  <div class="exercise-card"><div class="exercise-num">7</div><p class="exercise-text">Τι ονομάζουμε σταθερές και τι μεταβλητές;</p></div>
+  <div class="exercise-card"><div class="exercise-num">8</div><p class="exercise-text">Να αναφέρετε τους κανόνες ονομασίας των μεταβλητών.</p></div>
+  <div class="exercise-card"><div class="exercise-num">9</div><p class="exercise-text">Ποιες λέξεις ονομάζονται δεσμευμένες;</p></div>
+  <div class="exercise-card"><div class="exercise-num">10</div><p class="exercise-text">Να αναφέρετε τους τύπους δεδομένων των μεταβλητών.</p></div>
+  <div class="exercise-card"><div class="exercise-num">11</div><p class="exercise-text">Σε όσες κατηγορίες χωρίζουμε τους τελεστές;</p></div>
+  <div class="exercise-card"><div class="exercise-num">12</div><p class="exercise-text">Να αναφέρετε τους 8 τύπους συναρτήσεων που υπάρχουν έτοιμες στην «ΓΛΩΣΣΑ».</p></div>
+  <div class="exercise-card"><div class="exercise-num">13</div><p class="exercise-text">Να γράψετε μία αριθμητική έκφραση και μία λογική έκφραση. Ποια πιστεύετε ότι είναι η κύρια διαφορά τους;</p></div>
+  <div class="exercise-card"><div class="exercise-num">14</div><p class="exercise-text">Να αναφέρετε τα σχήματα του διαγράμματος ροής. Τι συμβολίζει το κάθε σχήμα;</p></div>
+  <div class="exercise-card"><div class="exercise-num">15</div><p class="exercise-text">Τι ονομάζουμε βρόχο;</p></div>
+  <div class="exercise-card"><div class="exercise-num">16</div><p class="exercise-text">Τι ονομάζουμε ατέρμονα βρόχο;</p></div>
+  <div class="exercise-card"><div class="exercise-num">17</div><p class="exercise-text">Τι ονομάζουμε τιμή φρουρό;</p></div>
+  <div class="exercise-card"><div class="exercise-num">18</div><p class="exercise-text">Πότε είναι αληθής η λογική πράξη: α) ΚΑΙ, β) Η, γ) ΟΧΙ;</p></div>
+
+  <div class="exercise-section-title" style="margin-top:28px;">Ασκήσεις Κεφαλαίου — Σωστό / Λάθος</div>
+  <p style="margin-bottom:12px;color:var(--text-2);font-size:14px;">Να χαρακτηρίσετε κάθε μία από τις παρακάτω προτάσεις ως σωστή (ΣΩΣΤΟ) ή λανθασμένη (ΛΑΘΟΣ).</p>
+
+  <div class="exercise-card"><div class="exercise-num">1</div><p class="exercise-text">Ο αλγόριθμος είναι απαραίτητος μόνο για την επίλυση προβλημάτων Πληροφορικής.</p><button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button><div class="solution-content"><strong>ΛΑΘΟΣ</strong> — Η έννοια του αλγορίθμου δεν συνδέεται αποκλειστικά με προβλήματα Πληροφορικής.</div></div>
+  <div class="exercise-card"><div class="exercise-num">2</div><p class="exercise-text">Ο αλγόριθμος αποτελείται από ένα πεπερασμένο σύνολο εντολών.</p><button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button><div class="solution-content"><strong>ΣΩΣΤΟ</strong></div></div>
+  <div class="exercise-card"><div class="exercise-num">3</div><p class="exercise-text">Ο αλγόριθμος μπορεί να περιλαμβάνει και εντολές που δεν είναι σαφείς.</p><button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button><div class="solution-content"><strong>ΛΑΘΟΣ</strong> — Κριτήριο καθοριστικότητας: κάθε εντολή πρέπει να είναι σαφής.</div></div>
+  <div class="exercise-card"><div class="exercise-num">4</div><p class="exercise-text">Η Πληροφορική μελετά τους αλγορίθμους μόνο από την πλευρά των γλωσσών προγραμματισμού.</p><button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button><div class="solution-content"><strong>ΛΑΘΟΣ</strong> — Τους μελετά από 4 σκοπιές: Υλικού, Γλωσσών, Θεωρητική, Αναλυτική.</div></div>
+  <div class="exercise-card"><div class="exercise-num">5</div><p class="exercise-text">Η αναπαράσταση των αλγορίθμων μπορεί να γίνει μόνο με χρήση ελεύθερου κειμένου και φυσικής γλώσσας.</p><button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button><div class="solution-content"><strong>ΛΑΘΟΣ</strong> — Μπορεί επίσης με διαγράμματα ροής και κωδικοποίηση σε ψευδογλώσσα/γλώσσα προγραμματισμού.</div></div>
+  <div class="exercise-card"><div class="exercise-num">6</div><p class="exercise-text">Τα κυριότερα σύμβολα των διαγραμμάτων ροής είναι η έλλειψη, ο ρόμβος, το ορθογώνιο και το πλάγιο παραλληλόγραμμο.</p><button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button><div class="solution-content"><strong>ΣΩΣΤΟ</strong></div></div>
+  <div class="exercise-card"><div class="exercise-num">7</div><p class="exercise-text">Οι κυριότερες εντολές ψευδογλώσσας είναι οι αριθμητικές και αλφαριθμητικές αναθέσεις τιμών σε μεταβλητές.</p><button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button><div class="solution-content"><strong>ΛΑΘΟΣ</strong> — Υπάρχουν επίσης εντολές εισόδου (ΔΙΑΒΑΣΕ), εξόδου (ΓΡΑΨΕ) και δομές ελέγχου.</div></div>
+  <div class="exercise-card"><div class="exercise-num">8</div><p class="exercise-text">Η δομή της ακολουθίας είναι ιδιαίτερα χρήσιμη για την αντιμετώπιση πολύπλοκων προβλημάτων.</p><button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button><div class="solution-content"><strong>ΛΑΘΟΣ</strong> — Η δομή ακολουθίας χρησιμοποιείται για <em>απλά</em> προβλήματα.</div></div>
+  <div class="exercise-card"><div class="exercise-num">9</div><p class="exercise-text">Η συνθήκη που ελέγχεται σε μια δομή επιλογής μπορεί να πάρει περισσότερες από δύο διαφορετικές τιμές.</p><button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button><div class="solution-content"><strong>ΛΑΘΟΣ</strong> — Η συνθήκη παίρνει ακριβώς δύο τιμές: ΑΛΗΘΗΣ ή ΨΕΥΔΗΣ.</div></div>
+  <div class="exercise-card"><div class="exercise-num">10</div><p class="exercise-text">Η ομάδα εντολών που περιέχεται σε μια δομή επιλογής μπορεί να μην εκτελεστεί.</p><button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button><div class="solution-content"><strong>ΣΩΣΤΟ</strong> — Στην απλή επιλογή αν η συνθήκη είναι ΨΕΥΔΗΣ, οι εντολές δεν εκτελούνται.</div></div>
+  <div class="exercise-card"><div class="exercise-num">13</div><p class="exercise-text">Εμφωλευμένα ΑΝ ονομάζονται δύο ή περισσότερες εντολές της μορφής ΑΝ ... ΤΟΤΕ ... ΑΛΛΙΩΣ που περιέχονται η μία μέσα στην άλλη.</p><button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button><div class="solution-content"><strong>ΣΩΣΤΟ</strong></div></div>
+  <div class="exercise-card"><div class="exercise-num">16</div><p class="exercise-text">Ο τελεστής ΚΑΙ αντιστοιχεί στη λογική πράξη της σύζευξης.</p><button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button><div class="solution-content"><strong>ΣΩΣΤΟ</strong></div></div>
+  <div class="exercise-card"><div class="exercise-num">19</div><p class="exercise-text">Ένα τμήμα αλγορίθμου που εκτελείται επαναληπτικά αποκαλείται βρόχος.</p><button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button><div class="solution-content"><strong>ΣΩΣΤΟ</strong></div></div>
+  <div class="exercise-card"><div class="exercise-num">20</div><p class="exercise-text">Στην εντολή ΓΙΑ ο βρόχος επαναλαμβάνεται για προκαθορισμένο αριθμό επαναλήψεων.</p><button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button><div class="solution-content"><strong>ΣΩΣΤΟ</strong></div></div>
+  <div class="exercise-card"><div class="exercise-num">21</div><p class="exercise-text">Ο βρόχος «ΓΙΑ Κ ΑΠΟ 5 ΜΕΧΡΙ 1» εκτελείται 5 φορές.</p><button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button><div class="solution-content"><strong>ΛΑΘΟΣ</strong> — Δεν εκτελείται καμία φορά γιατί η αρχική τιμή (5) είναι μεγαλύτερη από την τελική (1) με βήμα +1.</div></div>
+  <div class="exercise-card"><div class="exercise-num">22</div><p class="exercise-text">Ο βρόχος «ΓΙΑ Κ ΑΠΟ 5 ΜΕΧΡΙ 5» δεν εκτελείται καμία φορά.</p><button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button><div class="solution-content"><strong>ΛΑΘΟΣ</strong> — Εκτελείται <em>ακριβώς μία φορά</em> (για Κ=5).</div></div>
+  <div class="exercise-card"><div class="exercise-num">23</div><p class="exercise-text">Ο βρόχος «ΓΙΑ κ ΑΠΟ -4 ΜΕΧΡΙ -3» εκτελείται ακριβώς δύο φορές.</p><button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button><div class="solution-content"><strong>ΣΩΣΤΟ</strong> — Για κ=-4 και κ=-3, δηλαδή 2 φορές.</div></div>
+  <div class="exercise-card"><div class="exercise-num">25</div><p class="exercise-text">Η εντολή επανάληψης ΜΕΧΡΙΣ_ΟΤΟΥ εκτελείται υποχρεωτικά τουλάχιστον μία φορά.</p><button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button><div class="solution-content"><strong>ΣΩΣΤΟ</strong> — Η συνθήκη ελέγχεται στο τέλος οπότε πάντα εκτελείται τουλάχιστον μία φορά.</div></div>
+  <div class="exercise-card"><div class="exercise-num">27</div><p class="exercise-text">Οι εντολές που βρίσκονται σε μια επανάληψη ΟΣΟ, εκτελούνται τουλάχιστον μία φορά.</p><button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button><div class="solution-content"><strong>ΛΑΘΟΣ</strong> — Στην ΟΣΟ η συνθήκη ελέγχεται πρώτα, οπότε αν είναι ΨΕΥΔΗΣ ο βρόχος δεν εκτελείται καμία φορά.</div></div>
+
+  <div class="exercise-section-title" style="margin-top:28px;">Εφαρμογές — Εκτέλεση Εκφράσεων</div>
+  <div class="exercise-card">
+    <div class="exercise-num">α</div>
+    <p class="exercise-text">Να εκτελεστεί η έκφραση: <strong>((A MOD 5 = 0) KAI 9 ^ B &lt; 8)</strong> για Α = 5, Β = 1</p>
+    <button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Λύση</button>
+    <div class="solution-content">
+      <strong>Βήμα 1:</strong> Αντικατάσταση τιμών: ((5 MOD 5 = 0) KAI 9 ^ 1 &lt; 8)<br>
+      <strong>Βήμα 2:</strong> Αριθμητικές πράξεις: ((0 = 0) KAI 9 &lt; 8)<br>
+      <strong>Βήμα 3:</strong> Συγκρίσεις: ΑΛΗΘΗΣ KAI ΨΕΥΔΗΣ<br>
+      <strong>Αποτέλεσμα: ΨΕΥΔΗΣ</strong>
+    </div>
+  </div>
+  <div class="exercise-card">
+    <div class="exercise-num">β</div>
+    <p class="exercise-text">Να εκτελεστεί η έκφραση: <strong>((Γ DIV 2 = 1) KAI Α * 8 + Γ – 8 &lt;= 14) Ή 6 + Α &gt; 8</strong> για Α = 2, Β = 10, Γ = 6</p>
+    <button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Λύση</button>
+    <div class="solution-content">
+      <strong>Βήμα 1:</strong> ((6 DIV 2 = 1) KAI 2 * 8 + 6 – 8 &lt;= 14) Ή 6 + 2 &gt; 8<br>
+      <strong>Βήμα 2:</strong> ((3 = 1) KAI 16 + 6 – 8 &lt;= 14) Ή 8 &gt; 8<br>
+      <strong>Βήμα 3:</strong> ((3 = 1) KAI 14 &lt;= 14) Ή 8 &gt; 8<br>
+      <strong>Βήμα 4:</strong> (ΨΕΥΔΗΣ KAI ΑΛΗΘΗΣ) Ή ΨΕΥΔΗΣ<br>
+      <strong>Βήμα 5:</strong> ΨΕΥΔΗΣ Ή ΨΕΥΔΗΣ<br>
+      <strong>Αποτέλεσμα: ΨΕΥΔΗΣ</strong>
+    </div>
+  </div>
+
+  <div class="exercise-section-title" style="margin-top:28px;">Εφαρμογές — Αριθμός Επαναλήψεων Βρόχων</div>
+  <div class="exercise-card">
+    <div class="exercise-num">1</div>
+    <p class="exercise-text">Να γράψετε για κάθε βρόχο πόσες φορές θα εκτελεστεί:<br>
+    α) για i=5: ΟΣΟ i&gt;=0 ΕΠΑΝΑΛΑΒΕ / i←i-1<br>
+    β) για i=2: ΟΣΟ i&gt;2 ΕΠΑΝΑΛΑΒΕ / i←i-1<br>
+    γ) για i=1: ΟΣΟ i&lt;=5 ΕΠΑΝΑΛΑΒΕ / i←i+1<br>
+    δ) για i=1: ΑΡΧΗ_ΕΠΑΝΑΛΗΨΗΣ / i←i+1 / ΜΕΧΡΙΣ_ΟΤΟΥ i&lt;1<br>
+    ε) ΓΙΑ i ΑΠΟ 1 ΜΕΧΡΙ 5 ΜΕ ΒΗΜΑ 1<br>
+    ζ) ΓΙΑ i ΑΠΟ 1 ΜΕΧΡΙ 5 ΜΕ ΒΗΜΑ 2<br>
+    η) ΓΙΑ i ΑΠΟ 10 ΜΕΧΡΙ 1 ΜΕ ΒΗΜΑ -3<br>
+    θ) ΓΙΑ i ΑΠΟ 1 ΜΕΧΡΙ 100 ΜΕ ΒΗΜΑ 5<br>
+    ια) ΓΙΑ i ΑΠΟ 1 ΜΕΧΡΙ 100 ΜΕ ΒΗΜΑ 150<br>
+    ιβ) ΓΙΑ i ΑΠΟ 10 ΜΕΧΡΙ 5 ΜΕ ΒΗΜΑ 1</p>
+    <button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Λύση</button>
+    <div class="solution-content">
+      α) <strong>6 φορές</strong> (i: 5,4,3,2,1,0)<br>
+      β) <strong>Καμία φορά</strong> (2 &gt; 2 → ΨΕΥΔΗΣ)<br>
+      γ) <strong>5 φορές</strong> (i: 1,2,3,4,5)<br>
+      δ) <strong>1 φορά</strong> (εκτελείται 1 φορά, μετά i=2 και 2&lt;1 ΑΛΗΘΗΣ → σταματά)<br>
+      ε) <strong>5 φορές</strong><br>
+      ζ) <strong>3 φορές</strong> (i: 1,3,5)<br>
+      η) <strong>4 φορές</strong> (i: 10,7,4,1)<br>
+      θ) <strong>21 φορές</strong> (i: 1,6,11,...,96,101 → 21 τιμές)<br>
+      ια) <strong>1 φορά</strong> (i=1, μετά 1+150=151&gt;100)<br>
+      ιβ) <strong>Καμία φορά</strong> (10 &gt; 5, δεν εκτελείται)
+    </div>
+  </div>
+</div>
+`
+  },
+  {
+    id: 3,
+    title: "Δομές Δεδομένων & Αλγόριθμοι",
+    desc: "Πίνακες μονοδιάστατοι και δισδιάστατοι, αναζήτηση (σειριακή, δυαδική), ταξινόμηση φυσαλίδας, συγχώνευση.",
+    topics: ["Πίνακες","Μονοδιάστατοι","Δισδιάστατοι","Αναζήτηση","Ταξινόμηση","Συγχώνευση"],
+    ref: "ΑΕΠΠ Κεφ. 3",
+    sections: [
+      { id: "data", title: "Δεδομένα & Πίνακες" },
+      { id: "1d-array", title: "Μονοδιάστατοι Πίνακες" },
+      { id: "2d-array", title: "Δισδιάστατοι Πίνακες" },
+      { id: "search", title: "Αλγόριθμοι Αναζήτησης" },
+      { id: "sort", title: "Ταξινόμηση Φυσαλίδας" },
+      { id: "merge", title: "Συγχώνευση Πινάκων" },
+    ],
+    content: `
+<div class="chapter-hero">
+  <div class="chapter-eyebrow">Κεφάλαιο 3 · ΑΕΠΠ Κεφ. 3</div>
+  <h1 class="chapter-title">Δομές Δεδομένων & Αλγόριθμοι</h1>
+  <p class="chapter-desc">Πίνακες, αλγόριθμοι αναζήτησης (σειριακή & δυαδική), ταξινόμηση ευθείας ανταλλαγής (φυσαλίδα) και συγχώνευση πινάκων.</p>
+  <div class="chapter-meta">
+    <span class="chapter-tag">Πίνακες</span>
+    <span class="chapter-tag">Αναζήτηση</span>
+    <span class="chapter-tag">Ταξινόμηση</span>
+  </div>
+</div>
+
+<h2 class="section-heading" id="data">Δεδομένα & Πίνακες</h2>
+
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Πίνακας</strong> είναι μια ομάδα από μεταβλητές του ίδιου τύπου, με κοινό όνομα, που αποθηκεύονται σε διαδοχικές θέσεις μνήμης.</p>
+</div>
+
+<h2 class="section-heading" id="1d-array">Μονοδιάστατοι Πίνακες</h2>
+
+<div class="code-block">
+  <div class="code-label">Δήλωση μονοδιάστατου πίνακα</div>
+  <pre><span class="kw">ΜΕΤΑΒΛΗΤΕΣ</span>
+  ΑΚΕΡΑΙΕΣ: Α[<span class="num">10</span>]        <span class="cmt">! πίνακας 10 ακεραίων</span>
+  ΧΑΡΑΚΤΗΡΕΣ: Ονόματα[<span class="num">20</span>]  <span class="cmt">! πίνακας 20 ονομάτων</span></pre>
+</div>
+
+<div class="code-block">
+  <div class="code-label">Εισαγωγή στοιχείων επαναληπτικά</div>
+  <pre><span class="kw">ΓΙΑ</span> i <span class="kw">ΑΠΟ</span> <span class="num">1</span> <span class="kw">ΜΕΧΡΙ</span> Ν
+    <span class="kw">ΔΙΑΒΑΣΕ</span> Α[i]
+<span class="kw">ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ</span></pre>
+</div>
+
+<div class="code-block">
+  <div class="code-label">Εύρεση αθροίσματος</div>
+  <pre>αθροισμα ← <span class="num">0</span>
+<span class="kw">ΓΙΑ</span> i <span class="kw">ΑΠΟ</span> <span class="num">1</span> <span class="kw">ΜΕΧΡΙ</span> Ν
+    αθροισμα ← αθροισμα + Α[i]
+<span class="kw">ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ</span>
+<span class="kw">ΓΡΑΨΕ</span> αθροισμα</pre>
+</div>
+
+<div class="code-block">
+  <div class="code-label">Εύρεση μεγίστου (max)</div>
+  <pre>max ← Α[<span class="num">1</span>]
+<span class="kw">ΓΙΑ</span> i <span class="kw">ΑΠΟ</span> <span class="num">2</span> <span class="kw">ΜΕΧΡΙ</span> Ν
+    <span class="kw">ΑΝ</span> Α[i] > max <span class="kw">ΤΟΤΕ</span>
+        max ← Α[i]
+    <span class="kw">ΤΕΛΟΣ_ΑΝ</span>
+<span class="kw">ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ</span>
+<span class="kw">ΓΡΑΨΕ</span> <span class="str">'Μέγιστο:'</span>, max</pre>
+</div>
+
+<div class="note-box">
+  <div class="note-label">Σημαντικό</div>
+  <p>Για εύρεση max: ξεκινάμε με <code>max ← Α[1]</code> και συγκρίνουμε από i=2. Για min: <code>min ← Α[1]</code> και ελέγχουμε <code>Α[i] &lt; min</code>.</p>
+</div>
+
+<h2 class="section-heading" id="2d-array">Δισδιάστατοι Πίνακες</h2>
+
+<div class="code-block">
+  <div class="code-label">Δήλωση δισδιάστατου πίνακα</div>
+  <pre><span class="kw">ΜΕΤΑΒΛΗΤΕΣ</span>
+  ΑΚΕΡΑΙΕΣ: Πίνακας[<span class="num">3</span>,<span class="num">4</span>]  <span class="cmt">! 3 γραμμές, 4 στήλες</span></pre>
+</div>
+
+<div class="code-block">
+  <div class="code-label">Εισαγωγή σε δισδιάστατο πίνακα</div>
+  <pre><span class="kw">ΓΙΑ</span> i <span class="kw">ΑΠΟ</span> <span class="num">1</span> <span class="kw">ΜΕΧΡΙ</span> γραμμές
+    <span class="kw">ΓΙΑ</span> j <span class="kw">ΑΠΟ</span> <span class="num">1</span> <span class="kw">ΜΕΧΡΙ</span> στήλες
+        <span class="kw">ΔΙΑΒΑΣΕ</span> Πίνακας[i,j]
+    <span class="kw">ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ</span>
+<span class="kw">ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ</span></pre>
+</div>
+
+<h2 class="section-heading" id="search">Αλγόριθμοι Αναζήτησης</h2>
+
+<h3 class="sub-heading">Σειριακή Αναζήτηση</h3>
+<p>Ελέγχουμε διαδοχικά <em>κάθε</em> στοιχείο του πίνακα. Λειτουργεί και σε <strong>μη ταξινομημένους</strong> πίνακες.</p>
+
+<div class="code-block">
+  <div class="code-label">Σειριακή Αναζήτηση</div>
+  <pre>βρέθηκε ← <span class="kw">ΨΕΥΔΗΣ</span>
+<span class="kw">ΓΙΑ</span> i <span class="kw">ΑΠΟ</span> <span class="num">1</span> <span class="kw">ΜΕΧΡΙ</span> Ν
+    <span class="kw">ΑΝ</span> Α[i] = Χ <span class="kw">ΤΟΤΕ</span>
+        βρέθηκε ← <span class="kw">ΑΛΗΘΗΣ</span>
+        θέση ← i
+    <span class="kw">ΤΕΛΟΣ_ΑΝ</span>
+<span class="kw">ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ</span>
+<span class="kw">ΑΝ</span> βρέθηκε <span class="kw">ΤΟΤΕ</span>
+    <span class="kw">ΓΡΑΨΕ</span> <span class="str">'Βρέθηκε στη θέση'</span>, θέση
+<span class="kw">ΑΛΛΙΩΣ</span>
+    <span class="kw">ΓΡΑΨΕ</span> <span class="str">'Δεν βρέθηκε'</span>
+<span class="kw">ΤΕΛΟΣ_ΑΝ</span></pre>
+</div>
+
+<h3 class="sub-heading">Δυαδική Αναζήτηση</h3>
+<p>Μόνο σε <strong>ταξινομημένους</strong> πίνακες. Κάθε φορά αποκλείουμε το μισό της υπόλοιπης περιοχής. Πολύ ταχύτερη από τη σειριακή για μεγάλους πίνακες.</p>
+
+<div class="code-block">
+  <div class="code-label">Δυαδική Αναζήτηση</div>
+  <pre>αρχή ← <span class="num">1</span>
+τέλος ← Ν
+βρέθηκε ← <span class="kw">ΨΕΥΔΗΣ</span>
+<span class="kw">ΟΣΟ</span> αρχή <= τέλος <span class="kw">ΚΑΙ</span> <span class="kw">ΟΧΙ</span> βρέθηκε <span class="kw">ΕΠΑΝΑΛΑΒΕ</span>
+    μέση ← (αρχή + τέλος) <span class="fn">DIV</span> <span class="num">2</span>
+    <span class="kw">ΑΝ</span> Α[μέση] = Χ <span class="kw">ΤΟΤΕ</span>
+        βρέθηκε ← <span class="kw">ΑΛΗΘΗΣ</span>
+    <span class="kw">ΑΛΛΙΩΣ_ΑΝ</span> Χ < Α[μέση] <span class="kw">ΤΟΤΕ</span>
+        τέλος ← μέση - <span class="num">1</span>
+    <span class="kw">ΑΛΛΙΩΣ</span>
+        αρχή ← μέση + <span class="num">1</span>
+    <span class="kw">ΤΕΛΟΣ_ΑΝ</span>
+<span class="kw">ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ</span></pre>
+</div>
+
+<h2 class="section-heading" id="sort">Ταξινόμηση Ευθείας Ανταλλαγής (Φυσαλίδα)</h2>
+<p>Η μέθοδος της φυσαλίδας (Bubble Sort) συγκρίνει διαδοχικά ζεύγη στοιχείων και τα ανταλλάσσει αν είναι στη λανθασμένη σειρά.</p>
+
+<div class="code-block">
+  <div class="code-label">Ταξινόμηση Φυσαλίδας (αύξουσα)</div>
+  <pre><span class="kw">ΓΙΑ</span> i <span class="kw">ΑΠΟ</span> <span class="num">1</span> <span class="kw">ΜΕΧΡΙ</span> Ν-<span class="num">1</span>
+    <span class="kw">ΓΙΑ</span> j <span class="kw">ΑΠΟ</span> <span class="num">1</span> <span class="kw">ΜΕΧΡΙ</span> Ν-i
+        <span class="kw">ΑΝ</span> Α[j] > Α[j+<span class="num">1</span>] <span class="kw">ΤΟΤΕ</span>
+            temp ← Α[j]
+            Α[j] ← Α[j+<span class="num">1</span>]
+            Α[j+<span class="num">1</span>] ← temp
+        <span class="kw">ΤΕΛΟΣ_ΑΝ</span>
+    <span class="kw">ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ</span>
+<span class="kw">ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ</span></pre>
+</div>
+
+<div class="note-box">
+  <div class="note-label">Ανταλλαγή τιμών</div>
+  <p>Για ανταλλαγή δύο μεταβλητών Α και Β χρησιμοποιείται <strong>τρίτη βοηθητική μεταβλητή</strong> <code>temp</code>: <code>temp←Α, Α←Β, Β←temp</code></p>
+</div>
+
+<h2 class="section-heading" id="merge">Συγχώνευση Πινάκων</h2>
+<p>Η συγχώνευση ενώνει δύο <strong>ταξινομημένους</strong> πίνακες σε ένα τρίτο επίσης ταξινομημένο.</p>
+
+<div class="code-block">
+  <div class="code-label">Συγχώνευση δύο ταξινομημένων πινάκων</div>
+  <pre>i ← <span class="num">1</span>    <span class="cmt">! δείκτης 1ου πίνακα Α</span>
+j ← <span class="num">1</span>    <span class="cmt">! δείκτης 2ου πίνακα Β</span>
+k ← <span class="num">1</span>    <span class="cmt">! δείκτης τελικού Γ</span>
+<span class="kw">ΟΣΟ</span> i <= Ν1 <span class="kw">ΚΑΙ</span> j <= Ν2 <span class="kw">ΕΠΑΝΑΛΑΒΕ</span>
+    <span class="kw">ΑΝ</span> Α[i] <= Β[j] <span class="kw">ΤΟΤΕ</span>
+        Γ[k] ← Α[i]
+        i ← i + <span class="num">1</span>
+    <span class="kw">ΑΛΛΙΩΣ</span>
+        Γ[k] ← Β[j]
+        j ← j + <span class="num">1</span>
+    <span class="kw">ΤΕΛΟΣ_ΑΝ</span>
+    k ← k + <span class="num">1</span>
+<span class="kw">ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ</span>
+<span class="cmt">! Αντιγραφή υπολοίπων στοιχείων</span></pre>
+</div>
+`
+  },
+  {
+    id: 4,
+    title: "Άλλες Δομές Δεδομένων",
+    desc: "Στοίβα (LIFO), ουρά (FIFO), λίστες, δένδρα και γράφος — ορισμοί, λειτουργίες και υλοποίηση.",
+    topics: ["Στοίβα","Ουρά","Λίστες","Δένδρα","Γράφος","LIFO","FIFO"],
+    ref: "ΑΕΠΠ Κεφ. 4",
+    sections: [
+      { id: "stack", title: "Στοίβα (Stack)" },
+      { id: "queue", title: "Ουρά (Queue)" },
+      { id: "lists", title: "Λίστες" },
+      { id: "trees", title: "Δένδρα" },
+      { id: "graph", title: "Γράφος" },
+    ],
+    content: `
+<div class="chapter-hero">
+  <div class="chapter-eyebrow">Κεφάλαιο 4 · ΑΕΠΠ Κεφ. 4</div>
+  <h1 class="chapter-title">Άλλες Δομές Δεδομένων</h1>
+  <p class="chapter-desc">Δυναμικές δομές δεδομένων: στοίβα, ουρά, λίστες, δένδρα και γράφοι με τις βασικές τους λειτουργίες.</p>
+  <div class="chapter-meta">
+    <span class="chapter-tag">Στοίβα LIFO</span>
+    <span class="chapter-tag">Ουρά FIFO</span>
+    <span class="chapter-tag">Δυναμικές Δομές</span>
+  </div>
+</div>
+
+<h2 class="section-heading" id="stack">Στοίβα (Stack)</h2>
+
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Στοίβα</strong> είναι μια δομή δεδομένων στην οποία η εισαγωγή και η εξαγωγή στοιχείων γίνεται από <em>το ίδιο άκρο</em> (κορυφή). Αρχή: <strong>LIFO</strong> (Last In – First Out = Τελευταίο Μέσα, Πρώτο Έξω).</p>
+</div>
+
+<h3 class="sub-heading">Λειτουργίες Στοίβας</h3>
+<ul>
+  <li><strong>Ώθηση (Push)</strong> — εισαγωγή στοιχείου στην κορυφή</li>
+  <li><strong>Απώθηση (Pop)</strong> — εξαγωγή στοιχείου από την κορυφή</li>
+  <li><strong>Υπερχείλιση</strong> — προσπάθεια εισαγωγής σε γεμάτη στοίβα</li>
+  <li><strong>Υποχείλιση</strong> — προσπάθεια εξαγωγής από κενή στοίβα</li>
+</ul>
+
+<div class="code-block">
+  <div class="code-label">Ώθηση στοιχείου (Push)</div>
+  <pre><span class="cmt">! κορυφή: δείκτης κορυφής στοίβας, Α[]: πίνακας</span>
+<span class="kw">ΑΝ</span> κορυφή = Ν <span class="kw">ΤΟΤΕ</span>
+    <span class="kw">ΓΡΑΨΕ</span> <span class="str">'Υπερχείλιση - Γεμάτη στοίβα'</span>
+<span class="kw">ΑΛΛΙΩΣ</span>
+    κορυφή ← κορυφή + <span class="num">1</span>
+    Α[κορυφή] ← νέο_στοιχείο
+<span class="kw">ΤΕΛΟΣ_ΑΝ</span></pre>
+</div>
+
+<div class="code-block">
+  <div class="code-label">Απώθηση στοιχείου (Pop)</div>
+  <pre><span class="kw">ΑΝ</span> κορυφή = <span class="num">0</span> <span class="kw">ΤΟΤΕ</span>
+    <span class="kw">ΓΡΑΨΕ</span> <span class="str">'Υποχείλιση - Κενή στοίβα'</span>
+<span class="kw">ΑΛΛΙΩΣ</span>
+    <span class="kw">ΓΡΑΨΕ</span> <span class="str">'Εξάγεται:'</span>, Α[κορυφή]
+    κορυφή ← κορυφή - <span class="num">1</span>
+<span class="kw">ΤΕΛΟΣ_ΑΝ</span></pre>
+</div>
+
+<div class="example-box">
+  <div class="example-label">Παράδειγμα από καθημερινή ζωή</div>
+  <p>Μια στοίβα από πιάτα: βάζουμε το νέο πιάτο πάνω και παίρνουμε πάντα το πάνω πιάτο. Ο δείκτης <code>κορυφή</code> ξεκινά από 0 (κενή στοίβα).</p>
+</div>
+
+<h2 class="section-heading" id="queue">Ουρά (Queue)</h2>
+
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Ουρά</strong> είναι μια δομή δεδομένων στην οποία η εισαγωγή γίνεται από το <em>πίσω άκρο</em> και η εξαγωγή από το <em>μπροστινό άκρο</em>. Αρχή: <strong>FIFO</strong> (First In – First Out = Πρώτο Μέσα, Πρώτο Έξω).</p>
+</div>
+
+<h3 class="sub-heading">Δείκτες ουράς</h3>
+<ul>
+  <li><strong>front</strong> (εμπρός) — δείχνει το πρώτο στοιχείο</li>
+  <li><strong>rear</strong> (πίσω) — δείχνει το τελευταίο στοιχείο</li>
+  <li>Κενή ουρά: <code>front = 0 ΚΑΙ rear = 0</code></li>
+</ul>
+
+<div class="code-block">
+  <div class="code-label">Εισαγωγή στοιχείου σε ουρά</div>
+  <pre><span class="kw">ΑΝ</span> rear = Ν <span class="kw">ΤΟΤΕ</span>
+    <span class="kw">ΓΡΑΨΕ</span> <span class="str">'Γεμάτη ουρά'</span>
+<span class="kw">ΑΛΛΙΩΣ_ΑΝ</span> front = <span class="num">0</span> <span class="kw">ΚΑΙ</span> rear = <span class="num">0</span> <span class="kw">ΤΟΤΕ</span>
+    front ← <span class="num">1</span>
+    rear ← <span class="num">1</span>
+    Α[rear] ← νέο_στοιχείο
+<span class="kw">ΑΛΛΙΩΣ</span>
+    rear ← rear + <span class="num">1</span>
+    Α[rear] ← νέο_στοιχείο
+<span class="kw">ΤΕΛΟΣ_ΑΝ</span></pre>
+</div>
+
+<div class="code-block">
+  <div class="code-label">Εξαγωγή στοιχείου από ουρά</div>
+  <pre><span class="kw">ΑΝ</span> front = <span class="num">0</span> <span class="kw">ΚΑΙ</span> rear = <span class="num">0</span> <span class="kw">ΤΟΤΕ</span>
+    <span class="kw">ΓΡΑΨΕ</span> <span class="str">'Άδεια ουρά'</span>
+<span class="kw">ΑΛΛΙΩΣ_ΑΝ</span> front = rear <span class="kw">ΤΟΤΕ</span>
+    <span class="kw">ΓΡΑΨΕ</span> <span class="str">'Εξάγεται:'</span>, Α[front]
+    front ← <span class="num">0</span>
+    rear ← <span class="num">0</span>
+<span class="kw">ΑΛΛΙΩΣ</span>
+    <span class="kw">ΓΡΑΨΕ</span> <span class="str">'Εξάγεται:'</span>, Α[front]
+    front ← front + <span class="num">1</span>
+<span class="kw">ΤΕΛΟΣ_ΑΝ</span></pre>
+</div>
+
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Χαρακτηριστικό</th><th>Στοίβα</th><th>Ουρά</th></tr></thead>
+    <tbody>
+      <tr><td>Αρχή</td><td>LIFO</td><td>FIFO</td></tr>
+      <tr><td>Εισαγωγή</td><td>Κορυφή (Ώθηση)</td><td>Πίσω άκρο</td></tr>
+      <tr><td>Εξαγωγή</td><td>Κορυφή (Απώθηση)</td><td>Εμπρός άκρο</td></tr>
+      <tr><td>Δείκτες</td><td>1 (κορυφή)</td><td>2 (front, rear)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 class="section-heading" id="lists">Λίστες</h2>
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Λίστα</strong> είναι μια δυναμική δομή δεδομένων όπου κάθε κόμβος περιέχει το <em>στοιχείο</em> και έναν <em>δείκτη</em> προς τον επόμενο κόμβο. Τα δεδομένα ΔΕΝ αποθηκεύονται σε συνεχόμενες θέσεις μνήμης.</p>
+</div>
+<p>Βασικές λειτουργίες: <strong>εισαγωγή</strong>, <strong>διαγραφή</strong>, <strong>αναζήτηση</strong> στοιχείου.</p>
+
+<h2 class="section-heading" id="trees">Δένδρα</h2>
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Δένδρο</strong> είναι μια ιεραρχική δομή δεδομένων με έναν <em>ριζικό κόμβο</em> (root) από τον οποίο ξεκινούν όλοι οι άλλοι κόμβοι (κλαδιά).</p>
+</div>
+<p><strong>Βασική ορολογία:</strong> ρίζα, γονέας, παιδί, φύλλο, βάθος, ύψος δένδρου, δυαδικό δένδρο.</p>
+
+<h2 class="section-heading" id="graph">Γράφος</h2>
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Γράφος</strong> είναι μια δομή αποτελούμενη από <em>κόμβους (κορυφές)</em> και <em>ακμές</em> που τους συνδέουν. Μπορεί να είναι κατευθυνόμενος ή μη κατευθυνόμενος.</p>
+</div>
+<p>Παραδείγματα γράφων: χάρτες δρόμων, κοινωνικά δίκτυα, δίκτυα υπολογιστών.</p>
+`
+  },
+  {
+    id: 5,
+    title: "Τεχνικές Σχεδίασης Αλγορίθμων",
+    desc: "Ανάλυση προβλημάτων και μέθοδος Διαίρει και Βασίλευε.",
+    topics: ["Divide & Conquer","Ανάλυση","Σχεδίαση"],
+    ref: "ΑΕΠΠ Κεφ. 5",
+    sections: [
+      { id: "analysis", title: "Ανάλυση Προβλημάτων" },
+      { id: "divide", title: "Μέθοδος Διαίρει και Βασίλευε" },
+    ],
+    content: `
+<div class="chapter-hero">
+  <div class="chapter-eyebrow">Κεφάλαιο 5 · ΑΕΠΠ Κεφ. 5</div>
+  <h1 class="chapter-title">Τεχνικές Σχεδίασης Αλγορίθμων</h1>
+  <p class="chapter-desc">Μεθοδολογίες ανάλυσης σύνθετων προβλημάτων και η στρατηγική Διαίρει και Βασίλευε.</p>
+  <div class="chapter-meta">
+    <span class="chapter-tag">Σχεδίαση</span>
+    <span class="chapter-tag">Divide & Conquer</span>
+  </div>
+</div>
+
+<h2 class="section-heading" id="analysis">Ανάλυση Προβλημάτων</h2>
+<p>Η ανάλυση ενός προβλήματος σε απλούστερα υποπροβλήματα είναι θεμελιώδης τεχνική στον προγραμματισμό. Βασίζεται στην ιδέα ότι ένα σύνθετο πρόβλημα μπορεί να λυθεί αν λυθούν τα επιμέρους τμήματά του.</p>
+<p>Σχεδιαζόμαστε πρώτα τον αλγόριθμο σε υψηλό επίπεδο αφαίρεσης και στη συνέχεια εξειδικεύουμε κάθε βήμα.</p>
+
+<h2 class="section-heading" id="divide">Μέθοδος Διαίρει και Βασίλευε</h2>
+
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p>Η <strong>μέθοδος Διαίρει και Βασίλευε</strong> (Divide and Conquer) διαιρεί το αρχικό πρόβλημα σε μικρότερα υποπροβλήματα <em>της ίδιας φύσης</em>, τα επιλύει (συνήθως αναδρομικά) και συνδυάζει τα αποτελέσματα.</p>
+</div>
+
+<h3 class="sub-heading">Βήματα μεθόδου</h3>
+<ol>
+  <li><strong>Διαίρεση</strong> — το πρόβλημα χωρίζεται σε μικρότερα υποπροβλήματα</li>
+  <li><strong>Κατάκτηση</strong> — κάθε υποπρόβλημα επιλύεται ξεχωριστά</li>
+  <li><strong>Συνδυασμός</strong> — τα αποτελέσματα ενοποιούνται για τη λύση</li>
+</ol>
+
+<h3 class="sub-heading">Παραδείγματα</h3>
+<ul>
+  <li><strong>Δυαδική αναζήτηση</strong> — χωρίζει τον πίνακα στα δύο σε κάθε βήμα</li>
+  <li><strong>Ταξινόμηση Merge Sort</strong> — χωρίζει, ταξινομεί, συγχωνεύει</li>
+</ul>
+
+<div class="note-box">
+  <div class="note-label">Σύνδεση με ύλη</div>
+  <p>Η δυαδική αναζήτηση (Κεφ. 3) αποτελεί κλασικό παράδειγμα εφαρμογής της μεθόδου Διαίρει και Βασίλευε στην ΑΕΠΠ.</p>
+</div>
+`
+  },
+  {
+    id: 6,
+    title: "Εισαγωγή στον Προγραμματισμό",
+    desc: "Φυσικές και τεχνητές γλώσσες, τεχνικές σχεδίασης προγραμμάτων, προγραμματιστικά περιβάλλοντα.",
+    topics: ["Γλώσσες","Ψευδοκώδικας","Compiler","Interpreter","Περιβάλλοντα"],
+    ref: "Πληρ. Κεφ. 1",
+    sections: [
+      { id: "program", title: "Η Έννοια του Προγράμματος" },
+      { id: "languages", title: "Φυσικές & Τεχνητές Γλώσσες" },
+      { id: "design", title: "Τεχνικές Σχεδίασης" },
+      { id: "envs", title: "Προγραμματιστικά Περιβάλλοντα" },
+    ],
+    content: `
+<div class="chapter-hero">
+  <div class="chapter-eyebrow">Κεφάλαιο 6 · Πληρ. Κεφ. 1</div>
+  <h1 class="chapter-title">Εισαγωγή στον Προγραμματισμό</h1>
+  <p class="chapter-desc">Γλώσσες προγραμματισμού, τεχνικές σχεδίασης και προγραμματιστικά περιβάλλοντα.</p>
+  <div class="chapter-meta">
+    <span class="chapter-tag">Γλώσσες</span>
+    <span class="chapter-tag">Compiler</span>
+    <span class="chapter-tag">Interpreter</span>
+  </div>
+</div>
+
+<h2 class="section-heading" id="program">Η Έννοια του Προγράμματος</h2>
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Πρόγραμμα</strong> είναι μια ακολουθία εντολών γραμμένων σε μια γλώσσα προγραμματισμού, που ο υπολογιστής εκτελεί για να λύσει κάποιο πρόβλημα.</p>
+</div>
+
+<h2 class="section-heading" id="languages">Φυσικές & Τεχνητές Γλώσσες</h2>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Κατηγορία</th><th>Χαρακτηριστικά</th><th>Παραδείγματα</th></tr></thead>
+    <tbody>
+      <tr><td>Φυσικές γλώσσες</td><td>Ανθρώπινη επικοινωνία, ασαφείς</td><td>Ελληνικά, Αγγλικά</td></tr>
+      <tr><td>Γλώσσες μηχανής</td><td>0 και 1, εκτελείται άμεσα</td><td>Δυαδικός κώδικας</td></tr>
+      <tr><td>Γλώσσες Assembly</td><td>Χαμηλού επιπέδου, κοντά σε μηχανή</td><td>MASM, NASM</td></tr>
+      <tr><td>Υψηλού επιπέδου</td><td>Κοντά στη φυσική γλώσσα</td><td>Python, Pascal, C</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 class="section-heading" id="design">Τεχνικές Σχεδίασης Προγραμμάτων</h2>
+<ul>
+  <li><strong>Ιεραρχική σχεδίαση</strong> (Top-Down) — από το γενικό στο ειδικό</li>
+  <li><strong>Τμηματικός προγραμματισμός</strong> — χωρισμός σε υποπρογράμματα</li>
+  <li><strong>Δομημένος προγραμματισμός</strong> — χρήση μόνο 3 δομών: ακολουθία, επιλογή, επανάληψη</li>
+</ul>
+
+<h2 class="section-heading" id="envs">Προγραμματιστικά Περιβάλλοντα</h2>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Είδος</th><th>Λειτουργία</th></tr></thead>
+    <tbody>
+      <tr><td>Μεταγλωττιστής (Compiler)</td><td>Μεταφράζει ολόκληρο το πρόγραμμα σε γλώσσα μηχανής, παράγει εκτελέσιμο αρχείο</td></tr>
+      <tr><td>Διερμηνευτής (Interpreter)</td><td>Μεταφράζει και εκτελεί κάθε εντολή ξεχωριστά, γραμμή-γραμμή</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="note-box">
+  <div class="note-label">Σχολικό Λογισμικό</div>
+  <p>Για το μάθημα ΑΕΠΠ χρησιμοποιούνται: <strong>ΓλωσσοΜάθεια</strong> και <strong>Διερμηνευτής της Γλώσσας</strong>.</p>
+</div>
+`
+  },
+  {
+    id: 7,
+    title: "Σύγχρονα Προγραμματιστικά Περιβάλλοντα",
+    desc: "Δομημένος, τμηματικός και αντικειμενοστραφής προγραμματισμός — κλάσεις, αντικείμενα, κληρονομικότητα.",
+    topics: ["ΑΟΠ","Κλάσεις","Αντικείμενα","Κληρονομικότητα","Ενθυλάκωση","Πολυμορφισμός"],
+    ref: "Πληρ. Κεφ. 2",
+    sections: [
+      { id: "structured", title: "Δομημένος Προγραμματισμός" },
+      { id: "oop", title: "Αντικειμενοστραφής Προγραμματισμός" },
+      { id: "classes", title: "Κλάσεις & Αντικείμενα" },
+      { id: "inheritance", title: "Κληρονομικότητα" },
+      { id: "polymorphism", title: "Πολυμορφισμός" },
+    ],
+    content: `
+<div class="chapter-hero">
+  <div class="chapter-eyebrow">Κεφάλαιο 7 · Πληρ. Κεφ. 2</div>
+  <h1 class="chapter-title">Σύγχρονα Προγραμματιστικά Περιβάλλοντα</h1>
+  <p class="chapter-desc">Από τον δομημένο στον αντικειμενοστραφή προγραμματισμό — κλάσεις, αντικείμενα, κληρονομικότητα και πολυμορφισμός.</p>
+  <div class="chapter-meta">
+    <span class="chapter-tag">ΑΟΠ</span>
+    <span class="chapter-tag">Κλάσεις</span>
+    <span class="chapter-tag">Κληρονομικότητα</span>
+  </div>
+</div>
+
+<h2 class="section-heading" id="structured">Δομημένος Προγραμματισμός</h2>
+<p>Ο δομημένος προγραμματισμός βασίζεται αποκλειστικά σε τρεις δομές ελέγχου: <strong>ακολουθία</strong>, <strong>επιλογή</strong> και <strong>επανάληψη</strong>. Δεν χρησιμοποιείται η <code>GOTO</code>.</p>
+
+<h3 class="sub-heading">Τμηματικός Προγραμματισμός</h3>
+<p>Ο μεγάλος κώδικας χωρίζεται σε μικρά, ανεξάρτητα <strong>υποπρογράμματα</strong> (διαδικασίες/συναρτήσεις).</p>
+
+<h2 class="section-heading" id="oop">Αντικειμενοστραφής Προγραμματισμός (ΑΟΠ)</h2>
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p>Ο <strong>αντικειμενοστραφής προγραμματισμός</strong> οργανώνει τον κώδικα γύρω από <em>αντικείμενα</em> που συνδυάζουν δεδομένα (ιδιότητες) και συμπεριφορά (μεθόδους).</p>
+</div>
+
+<h3 class="sub-heading">Βασικές έννοιες ΑΟΠ</h3>
+<ul>
+  <li><strong>Ενθυλάκωση</strong> — απόκρυψη εσωτερικών λεπτομερειών</li>
+  <li><strong>Κληρονομικότητα</strong> — μεταφορά χαρακτηριστικών από γονικές κλάσεις</li>
+  <li><strong>Πολυμορφισμός</strong> — διαφορετική υλοποίηση της ίδιας λειτουργίας</li>
+</ul>
+
+<h2 class="section-heading" id="classes">Κλάσεις & Αντικείμενα</h2>
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Κλάση</strong>: πρότυπο/καλούπι που ορίζει ιδιότητες και μεθόδους.<br><strong>Αντικείμενο</strong>: συγκεκριμένη <em>οντότητα</em> (instance) που δημιουργείται από μια κλάση.</p>
+</div>
+
+<p>Παράδειγμα: Κλάση <code>Ανθοπώλης</code> → Αντικείμενα: «Γιώργος», «Τζιοβάνι», «Ζαν Κλωντ».<br>
+Κάθε αντικείμενο έχει τις ίδιες <em>ιδιότητες</em> (επωνυμία, ΑΦΜ, τηλέφωνο) αλλά διαφορετικές <em>τιμές</em>.</p>
+
+<h3 class="sub-heading">Ιδιότητες & Μέθοδοι</h3>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Στοιχείο</th><th>Ρόλος</th><th>Παράδειγμα</th></tr></thead>
+    <tbody>
+      <tr><td>Ιδιότητα</td><td>Αποθηκεύει δεδομένα αντικειμένου</td><td>Επωνυμία, ΑΦΜ, Τηλέφωνο</td></tr>
+      <tr><td>Μέθοδος</td><td>Ενέργεια/υπηρεσία αντικειμένου</td><td>ΔέχεταιΠαραγγελία(), ΑναθέτειΠαράδοση()</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 class="section-heading" id="inheritance">Κληρονομικότητα</h2>
+
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Κληρονομικότητα</strong> (inheritance) είναι η δυνατότητα μιας κλάσης να κληρονομεί ιδιότητες και μεθόδους από μια άλλη (γονική) κλάση.</p>
+</div>
+
+<p><strong>Κανόνας is_a</strong>: Μια κλάση Α μπορεί να είναι υποκλάση της Β αν ισχύει «ένα Α είναι ένα Β».</p>
+
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Ζεύγος</th><th>Έγκυρο;</th><th>Αιτία</th></tr></thead>
+    <tbody>
+      <tr><td>Νόμισμα – Ευρώ</td><td style="color:#dc2626">Όχι</td><td>Ευρώ = αντικείμενο, όχι κλάση</td></tr>
+      <tr><td>Οργανωτική Μονάδα – Τμήμα</td><td style="color:var(--green)">Ναι</td><td>Τμήμα is_a Οργανωτική Μονάδα</td></tr>
+      <tr><td>Άνθρωπος – Πελάτης</td><td style="color:var(--green)">Ναι</td><td>Πελάτης is_a Άνθρωπος</td></tr>
+      <tr><td>Ήπειρος – Χώρα</td><td style="color:#dc2626">Όχι</td><td>Χώρα εντάσσεται σε Ήπειρο</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 class="section-heading" id="polymorphism">Πολυμορφισμός</h2>
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Πολυμορφισμός</strong> (polymorphism) είναι μια ιδιότητα ΑΟΠ με την οποία μια λειτουργία μπορεί να υλοποιείται με πολλούς διαφορετικούς τρόπους ανάλογα με το αντικείμενο.</p>
+</div>
+`
+  },
+  {
+    id: 8,
+    title: "Υποπρογράμματα",
+    desc: "Διαδικασίες και συναρτήσεις, παράμετροι, εμβέλεια μεταβλητών, στοίβα κλήσεων.",
+    topics: ["Διαδικασίες","Συναρτήσεις","Παράμετροι","Εμβέλεια","Τμηματικός"],
+    ref: "ΑΕΠΠ Κεφ. 7 & 8",
+    sections: [
+      { id: "subprog", title: "Χαρακτηριστικά Υποπρογραμμάτων" },
+      { id: "params", title: "Παράμετροι" },
+      { id: "procedures", title: "Διαδικασίες" },
+      { id: "functions", title: "Συναρτήσεις" },
+      { id: "scope", title: "Εμβέλεια Μεταβλητών" },
+    ],
+    content: `
+<div class="chapter-hero">
+  <div class="chapter-eyebrow">Κεφάλαιο 8 · ΑΕΠΠ Κεφ. 7-8</div>
+  <h1 class="chapter-title">Υποπρογράμματα</h1>
+  <p class="chapter-desc">Διαδικασίες, συναρτήσεις, πέρασμα παραμέτρων, εμβέλεια μεταβλητών και υλοποίηση τμηματικού προγραμματισμού.</p>
+  <div class="chapter-meta">
+    <span class="chapter-tag">Διαδικασίες</span>
+    <span class="chapter-tag">Συναρτήσεις</span>
+    <span class="chapter-tag">Παράμετροι</span>
+  </div>
+</div>
+
+<h2 class="section-heading" id="subprog">Χαρακτηριστικά Υποπρογραμμάτων</h2>
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Υποπρόγραμμα</strong> είναι ένα αυτόνομο τμήμα κώδικα που εκτελεί μια συγκεκριμένη εργασία και μπορεί να κληθεί από το κύριο πρόγραμμα ή άλλα υποπρογράμματα.</p>
+</div>
+
+<h3 class="sub-heading">Πλεονεκτήματα τμηματικού προγραμματισμού</h3>
+<ul>
+  <li>Μείωση μεγέθους κύριου προγράμματος</li>
+  <li>Επαναχρησιμοποίηση κώδικα</li>
+  <li>Ευκολότερη εντοπισμός σφαλμάτων</li>
+  <li>Ευκολότερη συνεργασία ομάδας</li>
+  <li>Βελτίωση αναγνωσιμότητας</li>
+</ul>
+
+<h2 class="section-heading" id="params">Παράμετροι</h2>
+
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Είδος</th><th>Ορισμός</th><th>Πού εμφανίζεται</th></tr></thead>
+    <tbody>
+      <tr><td>Τυπικές παράμετροι</td><td>Ορίζονται στη δήλωση υποπρογράμματος</td><td>Κεφαλίδα υποπρογράμματος</td></tr>
+      <tr><td>Πραγματικές παράμετροι</td><td>Οι πραγματικές τιμές κατά την κλήση</td><td>Στην κλήση του υποπρογράμματος</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 class="section-heading" id="procedures">Διαδικασίες</h2>
+<p>Η διαδικασία εκτελεί ενέργειες αλλά <strong>ΔΕΝ επιστρέφει τιμή</strong>.</p>
+
+<div class="code-block">
+  <div class="code-label">Γενική μορφή Διαδικασίας</div>
+  <pre><span class="kw">ΔΙΑΔΙΚΑΣΙΑ</span> <span class="fn">Όνομα</span>(τυπικές_παράμετροι)
+    <span class="cmt">! Τοπικές μεταβλητές</span>
+    <span class="kw">ΜΕΤΑΒΛΗΤΕΣ</span>
+        ...
+    <span class="kw">ΑΡΧΗ</span>
+        εντολές
+    <span class="kw">ΤΕΛΟΣ_ΔΙΑΔΙΚΑΣΙΑΣ</span> <span class="fn">Όνομα</span></pre>
+</div>
+
+<div class="code-block">
+  <div class="code-label">Κλήση διαδικασίας</div>
+  <pre><span class="kw">ΚΑΛΕΣΕ</span> <span class="fn">Όνομα</span>(πραγματικές_παράμετροι)</pre>
+</div>
+
+<h2 class="section-heading" id="functions">Συναρτήσεις</h2>
+<p>Η συνάρτηση εκτελεί υπολογισμούς και <strong>επιστρέφει μία τιμή</strong> στο καλούν πρόγραμμα.</p>
+
+<div class="code-block">
+  <div class="code-label">Γενική μορφή Συνάρτησης</div>
+  <pre><span class="kw">ΣΥΝΑΡΤΗΣΗ</span> <span class="fn">Όνομα</span>(τυπικές_παράμετροι) : τύπος_αποτελέσματος
+    <span class="kw">ΜΕΤΑΒΛΗΤΕΣ</span>
+        ...
+    <span class="kw">ΑΡΧΗ</span>
+        εντολές
+        <span class="fn">Όνομα</span> ← τιμή_επιστροφής  <span class="cmt">! επιστροφή τιμής</span>
+    <span class="kw">ΤΕΛΟΣ_ΣΥΝΑΡΤΗΣΗΣ</span> <span class="fn">Όνομα</span>
+
+<span class="cmt">! Κλήση: χρησιμοποιείται απευθείας σε έκφραση</span>
+αποτελεσμα ← <span class="fn">Όνομα</span>(παράμετροι)</pre>
+</div>
+
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Χαρακτηριστικό</th><th>Διαδικασία</th><th>Συνάρτηση</th></tr></thead>
+    <tbody>
+      <tr><td>Επιστροφή τιμής</td><td>Όχι</td><td>Ναι (1 τιμή)</td></tr>
+      <tr><td>Κλήση</td><td>ΚΑΛΕΣΕ Όνομα()</td><td>Σε έκφραση</td></tr>
+      <tr><td>Χρήση</td><td>Ενέργειες</td><td>Υπολογισμοί</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 class="section-heading" id="scope">Εμβέλεια Μεταβλητών</h2>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Είδος</th><th>Ορισμός</th><th>Πού χρησιμοποιείται</th></tr></thead>
+    <tbody>
+      <tr><td>Καθολικές (global)</td><td>Δηλώνονται στο κύριο πρόγραμμα</td><td>Παντού (κύριο + υποπρογράμματα)</td></tr>
+      <tr><td>Τοπικές (local)</td><td>Δηλώνονται μέσα στο υποπρόγραμμα</td><td>Μόνο στο συγκεκριμένο υποπρόγραμμα</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="warn-box">
+  <div class="warn-label">Προσοχή</div>
+  <p>Τοπικές μεταβλητές <em>δεν είναι ορατές</em> εκτός του υποπρογράμματος όπου δηλώθηκαν. Κατά την κλήση, η τιμή τους χάνεται.</p>
+</div>
+`
+  },
+  {
+    id: 9,
+    title: "Εκσφαλμάτωση Προγράμματος",
+    desc: "Κατηγορίες λαθών (συντακτικά, εκτέλεσης, λογικά), μέθοδοι εκσφαλμάτωσης και μαύρο κουτί.",
+    topics: ["Σφάλματα","Συντακτικά","Λογικά","Debugging","Μαύρο Κουτί"],
+    ref: "ΑΕΠΠ Κεφ. 9",
+    sections: [
+      { id: "error-types", title: "Κατηγορίες Λαθών" },
+      { id: "debugging", title: "Εκσφαλμάτωση" },
+      { id: "blackbox", title: "Μέθοδος Μαύρο Κουτί" },
+    ],
+    content: `
+<div class="chapter-hero">
+  <div class="chapter-eyebrow">Κεφάλαιο 9 · ΑΕΠΠ Κεφ. 9</div>
+  <h1 class="chapter-title">Εκσφαλμάτωση Προγράμματος</h1>
+  <p class="chapter-desc">Κατηγορίες λαθών, τεχνικές εκσφαλμάτωσης λογικών λαθών σε δομές επιλογής, επανάληψης, πίνακες και υποπρογράμματα.</p>
+  <div class="chapter-meta">
+    <span class="chapter-tag">Debugging</span>
+    <span class="chapter-tag">Σφάλματα</span>
+    <span class="chapter-tag">Έλεγχος</span>
+  </div>
+</div>
+
+<h2 class="section-heading" id="error-types">Κατηγορίες Λαθών</h2>
+
+<h3 class="sub-heading">Α. Συντακτικά Λάθη</h3>
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Συντακτικά λάθη</strong> εντοπίζονται κατά τη <em>μεταγλώττιση</em> (compile time). Προκύπτουν από παραβίαση κανόνων σύνταξης της γλώσσας.</p>
+</div>
+<ul>
+  <li>Λάθος ορθογραφία εντολής</li>
+  <li>Έλλειψη ΤΕΛΟΣ_ΑΝ, ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ κ.λπ.</li>
+  <li>Λάθος τύπος δεδομένων</li>
+</ul>
+
+<h3 class="sub-heading">Β. Λάθη Εκτέλεσης (Run-time)</h3>
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Λάθη εκτέλεσης</strong> εμφανίζονται κατά την <em>εκτέλεση</em> και οδηγούν σε μη κανονικό τερματισμό (crash).</p>
+</div>
+<ul>
+  <li>Διαίρεση με το μηδέν</li>
+  <li>Υπερχείλιση αριθμού</li>
+  <li>Πρόσβαση εκτός ορίων πίνακα</li>
+</ul>
+
+<h3 class="sub-heading">Γ. Λογικά Λάθη</h3>
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p><strong>Λογικά λάθη</strong> είναι τα πιο δύσκολα στον εντοπισμό. Το πρόγραμμα εκτελείται κανονικά αλλά παράγει <em>λανθασμένα αποτελέσματα</em>.</p>
+</div>
+
+<h2 class="section-heading" id="debugging">Εκσφαλμάτωση</h2>
+
+<h3 class="sub-heading">Εκσφαλμάτωση σε δομές Επιλογής</h3>
+<ul>
+  <li>Ελέγχουμε τη <strong>συνθήκη</strong> — χρησιμοποιούμε τιμές που δοκιμάζουν όλα τα μονοπάτια</li>
+  <li>Ελέγχουμε <strong>οριακές τιμές</strong> (αρκεί = ή απαιτείται &gt; ;)</li>
+  <li>Τυπώνουμε ενδιάμεσες τιμές μεταβλητών (<code>ΓΡΑΨΕ</code>)</li>
+</ul>
+
+<h3 class="sub-heading">Εκσφαλμάτωση σε δομές Επανάληψης</h3>
+<ul>
+  <li>Ελέγχουμε αν η επανάληψη εκτελείται <strong>σωστό πλήθος φορών</strong></li>
+  <li>Ελέγχουμε συνθήκη τερματισμού (off-by-one errors)</li>
+  <li>Ελέγχουμε αρχικοποίηση μεταβλητών πριν την επανάληψη</li>
+</ul>
+
+<h3 class="sub-heading">Εκσφαλμάτωση σε Πίνακες</h3>
+<ul>
+  <li>Ελέγχουμε τα όρια (από 1 έως Ν ή 0 έως Ν-1)</li>
+  <li>Ελέγχουμε ότι δεν ξεφεύγουμε από τα όρια πίνακα</li>
+</ul>
+
+<h3 class="sub-heading">Εκσφαλμάτωση σε Υποπρογράμματα</h3>
+<ul>
+  <li>Ελέγχουμε σωστή μεταφορά παραμέτρων</li>
+  <li>Ελέγχουμε εμβέλεια (τοπικές vs καθολικές)</li>
+  <li>Δοκιμάζουμε το υποπρόγραμμα <strong>ξεχωριστά</strong></li>
+</ul>
+
+<h2 class="section-heading" id="blackbox">Μέθοδος Ελέγχου «Μαύρο Κουτί»</h2>
+
+<div class="def-box">
+  <div class="def-label">Ορισμός</div>
+  <p>Στη μέθοδο <strong>Μαύρου Κουτιού</strong> (Black Box Testing), ελέγχουμε το πρόγραμμα χωρίς να ξέρουμε την εσωτερική του λογική. Μας ενδιαφέρει μόνο αν για συγκεκριμένες <em>εισόδους</em> λαμβάνουμε τις αναμενόμενες <em>εξόδους</em>.</p>
+</div>
+
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Μέθοδος</th><th>Γνώση Κώδικα</th><th>Εστίαση</th></tr></thead>
+    <tbody>
+      <tr><td>Μαύρο Κουτί</td><td>Δεν απαιτείται</td><td>Έλεγχος εισόδου-εξόδου</td></tr>
+      <tr><td>Λευκό Κουτί</td><td>Απαιτείται</td><td>Έλεγχος εσωτερικής λογικής</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="exercise-section">
+  <div class="exercise-section-title">Ερωτήσεις Θεωρίας</div>
+  <div class="exercise-card"><div class="exercise-num">1</div><p class="exercise-text">Ποιες είναι οι κατηγορίες λαθών σε ένα πρόγραμμα; Δώστε παράδειγμα για κάθε κατηγορία.</p></div>
+  <div class="exercise-card"><div class="exercise-num">2</div><p class="exercise-text">Ποια είναι τα πιο δύσκολα στον εντοπισμό λάθη; Γιατί;</p></div>
+  <div class="exercise-card"><div class="exercise-num">3</div><p class="exercise-text">Τι είναι η μέθοδος «Μαύρο Κουτί»; Πώς διαφέρει από τον έλεγχο «Λευκού Κουτιού»;</p></div>
+  <div class="exercise-card">
+    <div class="exercise-num">4</div>
+    <p class="exercise-text">Συντακτικό λάθος εμφανίζεται (α) κατά τη μεταγλώττιση ή (β) κατά την εκτέλεση;</p>
+    <button class="solution-btn" onclick="toggleSolution(this)"><svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση</button>
+    <div class="solution-content">(α) <strong>Κατά τη μεταγλώττιση</strong> — ο μεταγλωττιστής εντοπίζει συντακτικά λάθη πριν την εκτέλεση.</div>
+  </div>
+</div>
+`
+  },
+];
+
+// ─── Build nav & pages ───────────────────────────────────────
+function buildNav() {
+  const navChapters = document.getElementById('navChapters');
+  const homeGrid = document.getElementById('homeGrid');
+  const chapterPages = document.getElementById('chapterPages');
+
+  CHAPTERS.forEach(ch => {
+    // Nav item
+    const chEl = document.createElement('div');
+    chEl.className = 'nav-chapter';
+    chEl.innerHTML = `
+      <button class="nav-chapter-btn" id="nav-ch-${ch.id}" onclick="toggleChapterNav(this, ${ch.id})">
+        <span class="nav-chapter-num">0${ch.id}</span>
+        ${ch.title}
+        <svg class="nav-chapter-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      </button>
+      <div class="nav-sections" id="nav-sections-${ch.id}">
+        ${ch.sections.map(s => `<a class="nav-section-link" href="#${s.id}" id="navlink-${s.id}" onclick="navSectionClick(event, ${ch.id}, '${s.id}')">${s.title}</a>`).join('')}
+      </div>
+    `;
+    navChapters.appendChild(chEl);
+
+    // Home grid card
+    const card = document.createElement('div');
+    card.className = 'chapter-card';
+    card.onclick = () => showPage('chapter-' + ch.id, document.getElementById('nav-ch-' + ch.id));
+    card.innerHTML = `
+      <div class="chapter-card-num">Κεφάλαιο ${ch.id} · ${ch.ref}</div>
+      <div class="chapter-card-title">${ch.title}</div>
+      <div class="chapter-card-desc">${ch.desc}</div>
+      <div class="chapter-card-topics">${ch.topics.map(t => `<span class="topic-tag">${t}</span>`).join('')}</div>
+    `;
+    homeGrid.appendChild(card);
+
+    // Chapter page
+    const page = document.createElement('div');
+    page.className = 'chapter-page';
+    page.id = 'page-chapter-' + ch.id;
+
+    // Previous / Next
+    const prevCh = CHAPTERS[ch.id - 2];
+    const nextCh = CHAPTERS[ch.id];
+    const prevBtn = prevCh
+      ? `<button class="nav-btn prev" onclick="showPage('chapter-${prevCh.id}', document.getElementById('nav-ch-${prevCh.id}'))">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          <div><div class="nav-btn-label">Προηγούμενο</div><div class="nav-btn-title">Κεφ. ${prevCh.id}: ${prevCh.title}</div></div>
+        </button>`
+      : `<button class="nav-btn prev" onclick="showPage('home', document.querySelector('.nav-chapter-btn'))">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          <div><div class="nav-btn-label">Πίσω</div><div class="nav-btn-title">Αρχική</div></div>
+        </button>`;
+    const nextBtn = nextCh
+      ? `<button class="nav-btn next" onclick="showPage('chapter-${nextCh.id}', document.getElementById('nav-ch-${nextCh.id}'))">
+          <div><div class="nav-btn-label">Επόμενο</div><div class="nav-btn-title">Κεφ. ${nextCh.id}: ${nextCh.title}</div></div>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </button>` : '';
+
+    page.innerHTML = ch.content + `<div class="chapter-nav-footer">${prevBtn}${nextBtn}</div>`;
+    chapterPages.appendChild(page);
+  });
+}
+
+// ─── Navigation ──────────────────────────────────────────────
+let currentPage = 'home';
+
+function showPage(pageId, btn) {
+  // Hide all pages
+  document.querySelectorAll('.chapter-page').forEach(p => p.classList.remove('active'));
+  // Show target
+  const target = document.getElementById('page-' + pageId);
+  if (target) target.classList.add('active');
+
+  // Update nav buttons
+  document.querySelectorAll('.nav-chapter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  currentPage = pageId;
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const ca = document.getElementById('contentArea');
+  if (ca) ca.scrollTop = 0;
+
+  // Update topbar title
+  if (pageId === 'home') {
+    document.getElementById('topbarTitle').textContent = 'Πληροφορική Γ\' Λυκείου';
+  } else {
+    const chId = parseInt(pageId.replace('chapter-', ''));
+    const ch = CHAPTERS.find(c => c.id === chId);
+    if (ch) document.getElementById('topbarTitle').textContent = `Κεφ. ${ch.id}: ${ch.title}`;
+  }
+
+  closeSidebar();
+}
+
+function toggleChapterNav(btn, chId) {
+  const sections = document.getElementById('nav-sections-' + chId);
+  const isOpen = sections.classList.contains('open');
+
+  if (isOpen && btn.classList.contains('active')) {
+    // Navigate to chapter
+    showPage('chapter-' + chId, btn);
+    return;
+  }
+
+  // Close all sections first
+  document.querySelectorAll('.nav-sections').forEach(s => s.classList.remove('open'));
+  document.querySelectorAll('.nav-chapter-btn').forEach(b => b.classList.remove('open'));
+
+  sections.classList.add('open');
+  btn.classList.add('open');
+
+  showPage('chapter-' + chId, btn);
+}
+
+function navSectionClick(e, chId, sectionId) {
+  e.preventDefault();
+  showPage('chapter-' + chId, document.getElementById('nav-ch-' + chId));
+  setTimeout(() => {
+    const el = document.getElementById(sectionId);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+  closeSidebar();
+}
+
+// ─── Sidebar (mobile) ─────────────────────────────────────────
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('visible');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('visible');
+}
+
+// ─── Solution toggle ──────────────────────────────────────────
+function toggleSolution(btn) {
+  const sol = btn.nextElementSibling;
+  const isVisible = sol.classList.contains('visible');
+  sol.classList.toggle('visible');
+  btn.innerHTML = isVisible
+    ? `<svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Απάντηση`
+    : `<svg style="width:12px;height:12px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg> Απόκρυψη`;
+}
+
+// ─── Search ───────────────────────────────────────────────────
+const SEARCH_INDEX = [];
+
+function buildSearchIndex() {
+  CHAPTERS.forEach(ch => {
+    // Index chapter title
+    SEARCH_INDEX.push({ chId: ch.id, chTitle: ch.title, title: ch.title, text: ch.desc, sectionId: null });
+    // Index sections
+    ch.sections.forEach(s => {
+      SEARCH_INDEX.push({ chId: ch.id, chTitle: ch.title, title: s.title, text: '', sectionId: s.id });
+    });
+    // Index topics
+    ch.topics.forEach(t => {
+      SEARCH_INDEX.push({ chId: ch.id, chTitle: ch.title, title: t, text: `Θέμα στο ${ch.title}`, sectionId: null });
+    });
+  });
+}
+
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  if (q.length < 2) { searchResults.style.display = 'none'; return; }
+
+  const hits = SEARCH_INDEX.filter(item =>
+    item.title.toLowerCase().includes(q) ||
+    item.text.toLowerCase().includes(q) ||
+    item.chTitle.toLowerCase().includes(q)
+  ).slice(0, 8);
+
+  if (hits.length === 0) {
+    searchResults.innerHTML = '<div class="search-no-results">Δεν βρέθηκαν αποτελέσματα</div>';
+  } else {
+    searchResults.innerHTML = hits.map(h => `
+      <div class="search-result-item" onclick="doSearch(${h.chId}, '${h.sectionId || ''}')">
+        <div class="search-result-chapter">Κεφάλαιο ${h.chId}: ${h.chTitle}</div>
+        <div class="search-result-title">${h.title}</div>
+        ${h.text ? `<div class="search-result-excerpt">${h.text}</div>` : ''}
+      </div>
+    `).join('');
+  }
+  searchResults.style.display = 'block';
+});
+
+function doSearch(chId, sectionId) {
+  searchResults.style.display = 'none';
+  searchInput.value = '';
+  const btn = document.getElementById('nav-ch-' + chId);
+  showPage('chapter-' + chId, btn);
+  if (sectionId) {
+    setTimeout(() => {
+      const el = document.getElementById(sectionId);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 150);
+  }
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) {
+    searchResults.style.display = 'none';
+  }
+});
+
+// Ctrl+K shortcut
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    if (window.innerWidth <= 768) toggleSidebar();
+    searchInput.focus();
+  }
+  if (e.key === 'Escape') {
+    searchResults.style.display = 'none';
+    searchInput.blur();
+  }
+});
+
+// ─── Reading progress ─────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  const doc = document.documentElement;
+  const scrolled = (doc.scrollTop / (doc.scrollHeight - doc.clientHeight)) * 100;
+  document.getElementById('progressBar').style.width = Math.min(scrolled, 100) + '%';
+});
+
+// ─── Active section highlight ─────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      document.querySelectorAll('.nav-section-link').forEach(l => l.classList.remove('active-section'));
+      const link = document.getElementById('navlink-' + id);
+      if (link) link.classList.add('active-section');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+function observeSections() {
+  document.querySelectorAll('.section-heading[id]').forEach(el => observer.observe(el));
+}
+
+// ─── Init ─────────────────────────────────────────────────────
+buildNav();
+buildSearchIndex();
+setTimeout(observeSections, 300);
+</script>
+</body>
+</html>
