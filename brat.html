@@ -2,124 +2,410 @@
 <html lang="el">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bratislava Inn - Download APK</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Bratislava Inn — Το App του ταξιδιού μας!</title>
+
+    <!-- Open Graph Tags (ΚΡΙΣΙΜΑ για Viber/Messenger) -->
+    <meta property="og:title" content="Bratislava Inn — Το App του ταξιδιού μας!" />
+    <meta property="og:description" content="Κατεβάστε το Android APK για το ταξίδι στην Μπρατισλάβα &amp; τη Βιέννη. Όλη η οργάνωση της παρέας σε ένα app." />
+    <meta property="og:image" content="https://via.placeholder.com/512x512/0D47A1/FFFFFF?text=Bratislava+Inn" />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#0D47A1">
+
+    <!-- PWA / Web-App Icon (για Add to Home Screen) -->
+    <link rel="icon" type="image/png" sizes="512x512" href="https://via.placeholder.com/512x512/0D47A1/FFFFFF?text=BI" />
+    <link rel="apple-touch-icon" href="https://via.placeholder.com/512x512/0D47A1/FFFFFF?text=BI" />
+
     <style>
+        /* ---------- RESET & BASE ---------- */
         * {
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0D47A1, #1976D2);
-            color: white;
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(145deg, #0D47A1 0%, #1565C0 100%);
+            color: #1a1a1a;
             min-height: 100vh;
-            text-align: center;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        .container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 40px 24px;
-            border-radius: 24px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            max-width: 420px;
-            width: 90%;
-            margin: 20px auto;
+
+        /* κεντρικό container με glassmorphism */
+        .app-container {
+            max-width: 480px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 40px;
+            padding: 24px 20px 32px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
-        h1 {
-            font-size: 26px;
-            margin-top: 10px;
-            margin-bottom: 10px;
-            font-weight: bold;
+
+        /* ---------- BLOCK 1: HERO ---------- */
+        .badge {
+            display: inline-block;
+            background: rgba(239, 108, 0, 0.25);
+            backdrop-filter: blur(4px);
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 600;
             letter-spacing: 0.5px;
+            color: #FFB74D;
+            border: 1px solid rgba(239, 108, 0, 0.3);
+            margin-bottom: 16px;
         }
-        p {
-            font-size: 14px;
-            color: #E3F2FD;
-            line-height: 1.6;
-            margin-bottom: 32px;
+
+        h1 {
+            font-size: 2.1rem;
+            font-weight: 800;
+            line-height: 1.2;
+            color: #ffffff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            margin-bottom: 12px;
         }
-        .download-btn {
+
+        h1 span {
+            color: #FFB74D;
+        }
+
+        .sub-hero {
+            font-size: 1rem;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 28px;
+            font-weight: 400;
+        }
+
+        /* CTA Button */
+        .cta-button {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background-color: #FFFFFF;
-            color: #0D47A1;
-            text-decoration: none;
-            padding: 16px 32px;
-            border-radius: 14px;
-            font-size: 18px;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: all 0.2s ease;
+            gap: 12px;
+            background: #EF6C00;
+            color: #fff;
+            font-size: 1.3rem;
+            font-weight: 700;
+            padding: 18px 28px;
+            border-radius: 60px;
+            border: none;
             width: 100%;
+            max-width: 320px;
+            box-shadow: 0 10px 30px rgba(239, 108, 0, 0.4);
+            transition: all 0.2s ease;
+            text-decoration: none;
+            margin: 0 auto 12px;
+            letter-spacing: 0.3px;
+            cursor: pointer;
         }
-        .download-btn:hover {
-            background-color: #F5F5F5;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+
+        .cta-button:hover {
+            transform: scale(1.02);
+            background: #E65100;
+            box-shadow: 0 15px 35px rgba(239, 108, 0, 0.6);
         }
-        .download-btn:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+
+        .cta-sub {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            margin-bottom: 24px;
         }
-        .instructions {
-            margin-top: 32px;
-            text-align: left;
-            background: rgba(0, 0, 0, 0.15);
-            padding: 16px;
-            border-radius: 14px;
-            font-size: 13px;
-            color: #E3F2FD;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+
+        /* ---------- BLOCK 2: 4 FEATURES (2x2 GRID) ---------- */
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin: 32px 0;
         }
-        .instructions h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            color: #FFF;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border-radius: 24px;
+            padding: 18px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.15s ease;
         }
-        .instructions ol {
-            margin: 0;
-            padding-left: 20px;
-            line-height: 1.5;
+
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.14);
+            transform: translateY(-2px);
         }
-        .instructions li {
+
+        .feature-emoji {
+            font-size: 2rem;
+            display: block;
             margin-bottom: 8px;
         }
-        .instructions li:last-child {
-            margin-bottom: 0;
+
+        .feature-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .feature-desc {
+            font-size: 0.8rem;
+            line-height: 1.4;
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        /* ---------- BLOCK 3: 3 STEPS ---------- */
+        .steps-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 32px;
+            padding: 24px 18px;
+            margin: 28px 0;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .steps-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .step-number {
+            background: #EF6C00;
+            color: #fff;
+            width: 32px;
+            height: 32px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .step-text strong {
+            color: #fff;
+        }
+
+        /* ---------- BLOCK 4: ACCORDION (Οδηγός Εγκατάστασης) ---------- */
+        .accordion-section {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 28px;
+            padding: 8px 4px;
+            margin: 24px 0;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .accordion-toggle {
+            background: transparent;
+            border: none;
+            width: 100%;
+            text-align: left;
+            padding: 16px 18px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #FFB74D;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border-radius: 28px;
+            transition: background 0.2s;
+        }
+
+        .accordion-toggle:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.3s ease;
+            padding: 0 18px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        .accordion-content.active {
+            max-height: 400px;
+            padding: 0 18px 24px;
+        }
+
+        .accordion-content strong {
+            color: #fff;
+        }
+
+        /* ---------- BLOCK 5: FOOTER ---------- */
+        .footer {
+            margin-top: 28px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 24px;
+        }
+
+        .footer a {
+            color: #FFB74D;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 8px 20px;
+            border-radius: 40px;
+            transition: 0.2s;
+        }
+
+        .footer a:hover {
+            background: rgba(239, 108, 0, 0.25);
+        }
+
+        /* ---------- RESPONSIVE TWEAKS ---------- */
+        @media (max-width: 420px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            .feature-card {
+                padding: 14px 10px;
+            }
+            .feature-emoji {
+                font-size: 1.6rem;
+            }
+            .cta-button {
+                font-size: 1.1rem;
+                padding: 16px 20px;
+            }
+        }
+
+        @media (min-width: 600px) {
+            body {
+                padding: 40px 20px;
+            }
+            .app-container {
+                padding: 40px 36px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div style="font-size: 54px; margin-bottom: 5px;"></div>
-        <h1>Bratislava Inn</h1>
-        <p>Κατεβάστε την επίσημη εφαρμογή για το ταξίδι μας! Δείτε live το πρόγραμμα, καταγράψτε έξοδα στο κοινό ταμείο και οργανώστε τη βαλίτσα της παρέας.</p>
-        
-        <a href="https://mega.nz/file/0aRhTahA#jbDd5lvdcAYBLVw0bAL_8jh-3kpN9HcSAiQ_iH4cd0U" class="download-btn">
+
+    <div class="app-container">
+
+        <!-- BLOCK 1: HERO -->
+        <div class="badge">✈️ OFFICIAL TRIP COMPANION APP</div>
+        <h1>Bratislava &amp; Vienna 2026: <span>Το δικό μας ταξίδι</span>, στο δικό μας App.</h1>
+        <p class="sub-hero">
+            Ξεχάστε τα χαμένα links στο Viber, τα σκόρπια Excel με τα έξοδα και το <em>«τι ώρα πετάμε αύριο;»</em>.
+            Όλη η οργάνωση της παρέας, ζωντανά συγχρονισμένη σε μία οθόνη.
+        </p>
+
+        <!-- CTA -->
+        <a href="https://mega.nz/file/0aRhTahA#jbDd5lvdcAYBLVw0bAL_8jh-3kpN9HcSAiQ_iH4cd0U" class="cta-button" target="_blank">
             📥 Λήψη Εφαρμογής (APK)
         </a>
-        
-        <div class="instructions">
-            <h3>⚙️ Οδηγίες Εγκατάστασης:</h3>
-            <ol>
-                <li>Πατήστε το παραπάνω λευκό κουμπί για να ξεκινήσει η λήψη του αρχείου <strong>app-release.apk</strong>.</li>
-                <li>Μόλις ολοκληρωθεί η λήψη, πατήστε πάνω στην ειδοποίηση για να ανοίξει το αρχείο.</li>
-                <li>Αν το κινητό ή το tablet σάς εμφανίσει προειδοποίηση, μεταβείτε στις <i>Ρυθμίσεις</i> και ενεργοποιήστε την <strong>"Να επιτρέπεται η εγκατάσταση από άγνωστες πηγές"</strong> (ή από τον browser σας).</li>
-                <li>Πατήστε <strong>Εγκατάσταση</strong> και η εφαρμογή θα εμφανιστεί στην οθόνη σας!</li>
-            </ol>
+        <div class="cta-sub">(Ασφαλές αρχείο .apk • Μέγεθος ~25MB • Για συσκευές Android)</div>
+
+        <!-- BLOCK 2: 4 FEATURES (2x2) -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-emoji">🗺️</span>
+                <div class="feature-title">Live Πρόγραμμα &amp; Πλοήγηση</div>
+                <div class="feature-desc">Αναλυτικό χρονοδιάγραμμα ημέρα-ημέρα. Από την πτήση της Aegean μέχρι τον καφέ στη Βιέννη και την... ώρα ύπνου! Πατήστε πάνω σε οποιοδήποτε πλάνο για <strong>άμεση καθοδήγηση στο Google Maps</strong>.</div>
+            </div>
+            <div class="feature-card">
+                <span class="feature-emoji">💶</span>
+                <div class="feature-title">Το «Ταμείο της Παρέας»</div>
+                <div class="feature-desc">Τέρμα οι τσακωμοί για τα ρέστα. Καταγράψτε στη στιγμή ποιος πλήρωσε τα εισιτήρια, τα ψώνια ή το δείπνο. Το app υπολογίζει το συνολικό ταμείο της παρέας σε πραγματικό χρόνο.</div>
+            </div>
+            <div class="feature-card">
+                <span class="feature-emoji">⏳</span>
+                <div class="feature-title">Κέντρο Ελέγχου (Trip Dashboard)</div>
+                <div class="feature-desc">Ανοίγετε το app και βλέπετε ακαριαία: Αντίστροφη μέτρηση δευτερολέπτων μέχρι την αναχώρηση, την <strong>αμέσως επόμενη</strong> δραστηριότητα και ωριαίο διάγραμμα καιρού για την Μπρατισλάβα.</div>
+            </div>
+            <div class="feature-card">
+                <span class="feature-emoji">🎒</span>
+                <div class="feature-title">Ο «Ελβετικός Σουγιάς»</div>
+                <div class="feature-desc">Τέσσερα υπερ-εργαλεία σε ένα: Checklist προετοιμασίας (για να ελέγχει τα έγγραφα ο μπαμπάς), κοινή λίστα βαλίτσας, direct links για τα τοπικά λεωφορεία και <strong>Airbnb Pass</strong> για άνοιγμα του σπιτιού με ένα κλικ.</div>
+            </div>
         </div>
+
+        <!-- BLOCK 3: 3 STEPS -->
+        <div class="steps-container">
+            <div class="steps-title">🚀 Πώς λειτουργεί;</div>
+            <div class="step-item">
+                <div class="step-number">1</div>
+                <div class="step-text"><strong>Κατεβάζετε το αρχείο:</strong> Πατάτε λήψη και κάνετε εγκατάσταση το app-release.apk.</div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">2</div>
+                <div class="step-text"><strong>Φτιάχνετε Προφίλ:</strong> Δηλώνετε το όνομά σας, ένα link με τη φωτογραφία σας και (προαιρετικά) τηλέφωνο ανάγκης.</div>
+            </div>
+            <div class="step-item">
+                <div class="step-number">3</div>
+                <div class="step-text"><strong>Κάνετε Join:</strong> Πληκτρολογείτε τον 6-ψήφιο μυστικό κωδικό που σας έδωσε ο διοργανωτής και... φύγαμε!</div>
+            </div>
+        </div>
+
+        <!-- BLOCK 4: ACCORDION (Οδηγός Εγκατάστασης) -->
+        <div class="accordion-section">
+            <button class="accordion-toggle" id="accordionToggle">
+                <span>⚠️ Μου βγάζει προειδοποίηση το κινητό, τι κάνω;</span>
+                <span style="font-size:1.4rem;">➕</span>
+            </button>
+            <div class="accordion-content" id="accordionContent">
+                <p>Είναι απολύτως φυσιολογικό επειδή η εφαρμογή είναι ιδιωτική και δεν ανεβάστηκε στο δημόσιο Google Play Store. Πατήστε <strong>"Ρυθμίσεις"</strong> στην ειδοποίηση που θα εμφανιστεί και ενεργοποιήστε την επιλογή <strong>«Να επιτρέπεται η εγκατάσταση από αυτή την πηγή»</strong>. Η εφαρμογή είναι 100% ελεγμένη και ασφαλής.</p>
+            </div>
+        </div>
+
+        <!-- BLOCK 5: FOOTER -->
+        <div class="footer">
+            Made with 💙 for the Golfos Family &amp; Friends • Bratislava Trip Oct 12-16, 2026
+            <br>
+            <a href="#">📱 Πρόβλημα με το App; Στείλτε μήνυμα στον Βασίλη</a>
+        </div>
+
     </div>
+
+    <script>
+        // Accordion toggle (απλό και ελαφρύ)
+        document.getElementById('accordionToggle').addEventListener('click', function() {
+            const content = document.getElementById('accordionContent');
+            const isActive = content.classList.contains('active');
+
+            if (isActive) {
+                content.classList.remove('active');
+                this.querySelector('span:last-child').textContent = '➕';
+            } else {
+                content.classList.add('active');
+                this.querySelector('span:last-child').textContent = '➖';
+            }
+        });
+    </script>
+
 </body>
 </html>
